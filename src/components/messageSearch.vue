@@ -119,6 +119,8 @@
             </div>
             <div class="mspd-detail3">
               <div class="mspd-detail1 clearfix">
+                <div class="mspd-style mspdtitle">毕业年份</div>
+                <div class="mspd-style mspddetail">{{popupData.graduateTime}}</div>
                 <div class="mspd-style mspdtitle">最高学位</div>
                 <div class="mspd-style mspddetail">{{popupData.maxDegree}}</div>
                 <div class="mspd-style mspdtitle">最高学历</div>
