@@ -40,7 +40,9 @@
             dataObject = {"error": 0, "url": obj.url};
           }else{
             if (obj.message == '101') {
-              dataObject = {"error": 1, "message": '只能上传.doc、.docx、.rar、.zip、.gz、.bz2、.pdf、.xls、.xlsx文件'};
+              dataObject = {"error": 1, "message": '文件格式不对或文件大小超过50M，只能上传.doc、.docx、.rar、.zip、.gz、.bz2、.pdf、.xls、.xlsx文件'};
+            } else if(obj.message == '105'){
+              dataObject = {"error": 1, "message": '文件格式不对或文件大小超过50M，只能上传.bmp、.gif、.jpg、.jpeg、.png文件'};
             } else if (obj.message == '102') {
               dataObject = {"error": 1, "message": '上传失败'};
             } else if (obj.message == '103') {

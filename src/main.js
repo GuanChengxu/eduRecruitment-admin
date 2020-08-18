@@ -16,6 +16,12 @@ import VueKindEditor from './plugin/kindeditor.js'
 import '../static/kindeditor/kindeditor-all-min.js'
 import '../static/kindeditor/lang/zh-CN.js'
 import 'ie-placeholder'
+import 'es6-promise/auto'
+//swiper
+import VueAwesomeSwiper from 'vue-awesome-swiper'
+import 'swiper/dist/css/swiper.css'
+
+Vue.use(VueAwesomeSwiper, /* { default options with global component } */)
 
 if (Number.parseInt === undefined) Number.parseInt = window.parseInt;
 if (Number.parseFloat === undefined) Number.parseFloat = window.parseFloat;
@@ -32,7 +38,8 @@ Object.keys(filters).forEach(key => {
 })
 
 Vue.config.productionTip = false
-
+// Vue.prototype.commenUrl = 'https://ystwx.yantai.gov.cn/jntestapi'
+Vue.prototype.commenUrl = 'http://154.8.201.198:8081'
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

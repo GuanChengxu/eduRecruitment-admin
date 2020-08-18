@@ -13,12 +13,13 @@
         <!-- 报名须知输入框 -->
         <editor ref="editor" id="editor_id" :content.sync="eduApplySet.applyNotice"
           :afterChange="afterChange()"
-        uploadJson="http://154.8.201.198:8081/edu/eduRear/eduApplySet/upmethod"
+        :uploadJson="commenUrl+'/edu/eduRear/eduApplySet/upmethod'"
         pluginsPath="../../static/kindeditor/plugins/"
         :loadStyleMode="true"
         :allowFileManager='false'
         :allowPreviewEmoticons='false'
         filePostName="imgFile"
+        resizeType=0
         @on-content-change="onContentChange"></editor>
       </div>
       <!-- 招聘简章 -->
@@ -33,14 +34,14 @@
         <!-- 招聘简章输入框 -->
         <editor ref="editor2" id="editor_id2" :content.sync="eduApplySet.recruitmentBrochure"
           :afterChange="afterChange2()"
-        uploadJson="http://154.8.201.198:8081/edu/eduRear/eduApplySet/upmethod"
+        :uploadJson="commenUrl+'/edu/eduRear/eduApplySet/upmethod'"
         pluginsPath="../../static/kindeditor/plugins/"
         :loadStyleMode="true"
         :allowFileManager='false'
         :allowPreviewEmoticons='false'
         filePostName="imgFile"
+        resizeType=0
         @on-content-change="onContentChange2"></editor>
-        </editor>
       </div>
       <!-- 缴费 -->
       <div class="pf-box">
@@ -166,7 +167,9 @@
         detailDto: {
           'applyId': ''
         },
-        editorTextCopy: ''  // content-change 事件回掉改变的对象
+        editorTextCopy: '',  // content-change 事件回掉改变的对象
+        ifIE:false,
+        uploadUrl:''
       }
     },
     created() {},
@@ -186,6 +189,7 @@
         this.editorTextCopy = val;
       },
       afterChange () {
+
       },
       afterChange2 () {
       },
@@ -266,10 +270,8 @@
             that.$message('报名开始时间必须小于报名结束时间');
           } else if (qst > qet) {
             that.$message('查询开始时间必须小于查询结束时间');
-          } else if (qst < ast) {
-            that.$message('查询开始时间不能小于报名开始时间');
-          } else if (qst > aet) {
-            that.$message('查询开始时间必须小于等于报名结束时间');
+          } else if (qst <= ast) {
+            that.$message('查询开始时间必须大于报名开始时间');
           } else if (qet < aet) {
             that.$message('查询结束时间必须大于等于报名结束时间');
           } else if (ast == aet) {
@@ -279,7 +281,7 @@
           } else {
             axios({
               method:'post',
-              url:'http://154.8.201.198:8081/edu/eduRear/eduApplySet/updateApplySet',
+              url:this.commenUrl+'/edu/eduRear/eduApplySet/updateApplySet',
               data: qs.stringify(that.eduApplySet),
               headers: {
                 token: localStorage.getItem('token')
@@ -311,7 +313,7 @@
         var that = this;
         axios({
           method:'post',
-          url:'http://154.8.201.198:8081/edu/eduRear/eduApplySet/applyById',
+          url:this.commenUrl+'/edu/eduRear/eduApplySet/applyById',
           data: qs.stringify(that.detailDto),
           headers: {
             token: localStorage.getItem('token')
@@ -366,7 +368,7 @@
   .right-box {
     width: calc(100vw - 145px - 34px);
     height: calc(100vh - 57px - 34px);
-    min-width: calc(1366px - 145px - 34px);
+    min-width: calc(1200px - 145px - 34px);
     background: #FFFFFF;
     overflow-x: hidden;
     margin-top: 12px;
@@ -647,17 +649,24 @@
     height: 141px;
   }
 
-  .ke-edit {
-    height: 185px !important;
-  }
+  /*.ke-edit {*/
+  /*  height: 185px !important;*/
+  /*}*/
 
-  .ke-edit-iframe {
-    height: 185px !important;
-  }
+  /*.ke-edit-iframe {*/
+  /*  height: 185px !important;*/
+  /*}*/
 
   .ke-inline-block {
     background-image: none !important;
-    height: 1px !important;
+  }
+
+  .ke-menu-item-left {
+    height: 1px;
+  }
+
+  .ke-menu-item-right {
+    height: auto;
   }
 
   .ke-statusbar {

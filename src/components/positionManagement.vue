@@ -18,7 +18,7 @@
         <span class="pom-remake" v-show="currentTab == 0">备注：创建相应的单位学校给创建职位选择</span>
       </div>
       <!-- 职位管理 -->
-      <div v-show="currentTab == 2">
+      <div v-show="currentTab == 1">
         <div class="pom-box">
           <div style="float: left;">
             <!-- 职位列表 -->
@@ -38,7 +38,7 @@
               <input ref="postFile" type="file" class="input_file" @change="getPostFile()">
             </div>
             <div v-else style="float: left;">
-              <form id="jobForm" enctype="multipart/form-data" action='http://154.8.201.198:8081/edu/eduRear/eduJob/IEimportData' method='post'
+              <form id="jobForm" enctype="multipart/form-data" :action="commenUrl+'/edu/eduRear/eduJob/IEimportData'" method='post'
                 target='jobIframe' @submit="return saveReport()">
                 <span class="pom-button pbs">
                   <input type="hidden" name="token" :value="token" />
@@ -75,7 +75,7 @@
         </div>
       </div>
       <!-- 科目管理 -->
-      <div v-show="currentTab == 1">
+      <div v-show="currentTab == 'x'">
         <div class="pom-box">
           <div style="float: left;">
             <!-- 职位列表 -->
@@ -91,7 +91,7 @@
               <input ref="subjectFile" type="file" class="input_file" @change="getSubjectFile()">
             </div>
             <div v-else style="float: left;">
-              <form id="subjectForm" enctype="multipart/form-data" action='http://154.8.201.198:8081/edu/eduRear/eduSubject/IEimportData' method='post'
+              <form id="subjectForm" enctype="multipart/form-data" :action="commenUrl+'/edu/eduRear/eduSubject/IEimportData'" method='post'
                 target='subjectIframe' @submit="return saveReport()">
                 <span class="pom-button pbs">
                   <input type="hidden" name="token" :value="token" />
@@ -138,7 +138,7 @@
               <input ref="unitFile" type="file" class="input_file" @change="getUnitFile()">
             </div>
             <div v-else style="float: left;">
-              <form id="unitForm" enctype="multipart/form-data" action='http://154.8.201.198:8081/edu/eduRear/eduUnit/IEimportData' method='post'
+              <form id="unitForm" enctype="multipart/form-data" :action="commenUrl+'/edu/eduRear/eduUnit/IEimportData'" method='post'
                 target='unitIframe' @submit="return saveReport()">
                 <span class="pom-button pbs">
                   <input type="hidden" name="token" :value="token" />
@@ -184,21 +184,24 @@
                 <div class="ppddown-div">
                   {{jobUnitName}}<img class="ppddown-img" src="../assets/down.png" />
                 </div>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item v-for="(udl,udlidx) in unitDownData" :key="udlidx" :command="udl">{{udl.name}}</el-dropdown-item>
+                <el-dropdown-menu class="ts1" slot="dropdown">
+                  <div class="scroll_box">
+                    <el-dropdown-item v-for="(udl,udlidx) in unitDownData" :key="udlidx" :command="udl">{{udl.name}}</el-dropdown-item>
+                  </div>
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
             <div class="ppd-box">
               <div class="ppd-title">招聘岗位</div>
-              <el-dropdown class="ppd-down" trigger="click" @command="sdlHandleCommand">
-                <div class="ppddown-div">
-                  {{jobSubjectName}}<img class="ppddown-img" src="../assets/down.png" />
-                </div>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item v-for="(sdl,sdlidx) in subjectDownData" :key="sdlidx" :command="sdl">{{sdl.name}}</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+              <input type="text" class="ppd-down ppd-down-input" placeholder="请填写招聘岗位" v-model="insertJobDto.subjectName">
+<!--              <el-dropdown class="ppd-down" trigger="click" @command="sdlHandleCommand">-->
+<!--                <div class="ppddown-div">-->
+<!--                  {{jobSubjectName}}<img class="ppddown-img" src="../assets/down.png" />-->
+<!--                </div>-->
+<!--                <el-dropdown-menu slot="dropdown">-->
+<!--                  <el-dropdown-item v-for="(sdl,sdlidx) in subjectDownData" :key="sdlidx" :command="sdl">{{sdl.name}}</el-dropdown-item>-->
+<!--                </el-dropdown-menu>-->
+<!--              </el-dropdown>-->
             </div>
             <div class="ppd-box">
               <div class="ppd-title">招聘人数</div>
@@ -211,8 +214,10 @@
                 <div class="ppddown-div">
                   {{jobCationName}}<img class="ppddown-img" src="../assets/down.png" />
                 </div>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item v-for="(cdl,cdlidx) in cationDownData" :key="cdlidx" :command="cdl">{{cdl.education}}</el-dropdown-item>
+                <el-dropdown-menu class="ts1" slot="dropdown">
+                  <div class="scroll_box">
+                    <el-dropdown-item v-for="(cdl,cdlidx) in cationDownData" :key="cdlidx" :command="cdl">{{cdl.education}}</el-dropdown-item>
+                  </div>
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
@@ -278,9 +283,6 @@
             name: '单位/学校管理'
           },
           {
-            name: '科目管理'
-          },
-          {
             name: '职位管理'
           }
         ],
@@ -303,7 +305,7 @@
           'jobId': '',
           'unitId': '',
           'unitName': '',
-          'subjectId': '1',
+          // 'subjectId': '1',
           'subjectName': '',
           'educationId': '1',
           'educationName': '不限',
@@ -375,7 +377,7 @@
       reloadUser() {
         var content = document.getElementById('unitIframe').contentDocument.body.innerHTML;
         if (content == '' || content == null || content == undefined) {
-          
+
         } else {
           var obj = JSON.parse(content);
           if (obj.code == '200') {
@@ -395,7 +397,7 @@
       reloadSubject() {
         var content = document.getElementById('subjectIframe').contentDocument.body.innerHTML;
         if (content == '' || content == null || content == undefined) {
-          
+
         } else {
           var obj = JSON.parse(content);
           if (obj.code == '200') {
@@ -415,7 +417,7 @@
       reloadJob() {
         var content = document.getElementById('jobIframe').contentDocument.body.innerHTML;
         if (content == '' || content == null || content == undefined) {
-          
+
         } else {
           var obj = JSON.parse(content);
           if (obj.code == '200') {
@@ -438,10 +440,8 @@
         } else {
           this.currentTab = current;
         }
-        if (this.currentTab == 2) {
+        if (this.currentTab == 1) {
           this.getPostList();
-        } else if (this.currentTab == 1) {
-          this.getSubjectList();
         } else if (this.currentTab == 0) {
           this.getUnitList()
         }
@@ -455,14 +455,14 @@
         this.insertJobDto.jobId = '';
         this.insertJobDto.unitId = '';
         this.insertJobDto.unitName = '';
-        this.insertJobDto.subjectId = '';
+        // this.insertJobDto.subjectId = '';
         this.insertJobDto.subjectName = '';
         this.insertJobDto.educationId = '1';
         this.insertJobDto.educationName = '不限';
         this.insertJobDto.num = 0;
         this.jobCationName = '请选择相应的学历限制';
         this.jobUnitName = '请选择招聘单位/学校';
-        this.jobSubjectName = '请选择招聘岗位';
+        this.jobSubjectName = '请填写招聘岗位';
         this.aoru = '新建';
       },
       hidePopup() {
@@ -484,7 +484,7 @@
         this.update_subject = 0;
         this.insertSubjectDto.subjectId = '';
         this.insertSubjectDto.name = '';
-        this.jobSubjectName = '请选择招聘岗位';
+        this.jobSubjectName = '请填写招聘岗位';
         this.aoru = '新建';
       },
       hideSubjectPopup() {
@@ -498,7 +498,7 @@
         this.insertJobDto.jobId = jd.jobId;
         this.insertJobDto.unitId = jd.unitId;
         this.insertJobDto.unitName = jd.unitName;
-        this.insertJobDto.subjectId = jd.subjectId;
+        // this.insertJobDto.subjectId = jd.subjectId;
         this.insertJobDto.subjectName = jd.subjectName;
         this.insertJobDto.educationId = jd.educationId
         this.insertJobDto.educationName = jd.educationName
@@ -543,7 +543,7 @@
         var that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduJob/list',
+            url: this.commenUrl+'/edu/eduRear/eduJob/list',
             data: qs.stringify(that.selectListDto),
             headers: {
               token: localStorage.getItem('token')
@@ -573,7 +573,7 @@
         var that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduSubject/list',
+            url: this.commenUrl+'/edu/eduRear/eduSubject/list',
             data: qs.stringify(that.selectListDto),
             headers: {
               token: localStorage.getItem('token')
@@ -603,7 +603,7 @@
         var that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduUnit/list',
+            url: this.commenUrl+'/edu/eduRear/eduUnit/list',
             data: qs.stringify(that.selectListDto),
             headers: {
               token: localStorage.getItem('token')
@@ -630,9 +630,10 @@
       },
       // 导出职位模板
       postExport() {
+        const that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduJob/export',
+            url: this.commenUrl+'/edu/eduRear/eduJob/export',
             headers: {
               token: localStorage.getItem('token')
             },
@@ -641,7 +642,7 @@
             if (res.status == 200) {
               if (res.data.code == 200) {
                 var rdm = encodeURI(res.data.msg);
-                var url = 'http://154.8.201.198:8081/edu/common/download?fileName=' + rdm + '&delete=true';
+                var url = that.commenUrl+'/edu/common/download?fileName=' + rdm + '&delete=true';
                 window.location.href = url;
               } else if (res.data.code == 500) {
                 if (res.data.msg == '您的Session时效性已过，请重新登录!') {
@@ -660,9 +661,10 @@
       },
       // 导出科目模板
       subjectExport() {
+        const that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduSubject/export',
+            url: this.commenUrl+'/edu/eduRear/eduSubject/export',
             headers: {
               token: localStorage.getItem('token')
             },
@@ -671,7 +673,7 @@
             if (res.status == 200) {
               if (res.data.code == 200) {
                 var rdm = encodeURI(res.data.msg);
-                var url = 'http://154.8.201.198:8081/edu/common/download?fileName=' + rdm + '&delete=true';
+                var url = that.commenUrl+'/edu/common/download?fileName=' + rdm + '&delete=true';
                 window.location.href = url;
               } else if (res.data.code == 500) {
                 if (res.data.msg == '您的Session时效性已过，请重新登录!') {
@@ -690,18 +692,20 @@
       },
       // 导出学校模板
       unitExport() {
+        const that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduUnit/export',
+            url: this.commenUrl+'/edu/eduRear/eduUnit/export',
             headers: {
               token: localStorage.getItem('token')
             },
           })
           .then(function(res) {
+            console.log(res)
             if (res.status == 200) {
               if (res.data.code == 200) {
                 var rdm = encodeURI(res.data.msg);
-                var url = 'http://154.8.201.198:8081/edu/common/download?fileName=' + rdm + '&delete=true';
+                var url = that.commenUrl+'/edu/common/download?fileName=' + rdm + '&delete=true';
                 window.location.href = url;
               } else if (res.data.code == 500) {
                 if (res.data.msg == '您的Session时效性已过，请重新登录!') {
@@ -731,7 +735,7 @@
         formData.append('file', inputFile);
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduJob/importData',
+            url: this.commenUrl+'/edu/eduRear/eduJob/importData',
             data: formData,
             headers: {
               token: localStorage.getItem('token')
@@ -772,7 +776,7 @@
         formData.append('file', inputFile);
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduSubject/importData',
+            url: this.commenUrl+'/edu/eduRear/eduSubject/importData',
             data: formData,
             headers: {
               token: localStorage.getItem('token')
@@ -817,7 +821,7 @@
         formData.append('file', inputFile);
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduUnit/importData',
+            url: this.commenUrl+'/edu/eduRear/eduUnit/importData',
             data: formData,
             headers: {
               token: localStorage.getItem('token')
@@ -850,7 +854,7 @@
         var that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduUnit/selectEduUnitList',
+            url: this.commenUrl+'/edu/eduRear/eduUnit/selectEduUnitList',
             data: qs.stringify(that.selectListDto),
             headers: {
               token: localStorage.getItem('token')
@@ -880,7 +884,7 @@
         var that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduSubject/selectEduSubjectList',
+            url: this.commenUrl+'/edu/eduRear/eduSubject/selectEduSubjectList',
             data: qs.stringify(that.selectListDto),
             headers: {
               token: localStorage.getItem('token')
@@ -909,7 +913,7 @@
         var that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduJob/eduCationList',
+            url: this.commenUrl+'/edu/eduRear/eduJob/eduCationList',
             headers: {
               token: localStorage.getItem('token')
             }
@@ -938,10 +942,15 @@
         if (that.update_job == 0) {
           if (that.insertJobDto.unitId == '') {
             that.$message('请选择招聘单位/学校');
-          } else if (that.insertJobDto.subjectId == '') {
-            that.$message('请选择岗位');
+          }else if(that.insertJobDto.subjectName == '' || that.insertJobDto.subjectName == null || that.insertJobDto.subjectName.replace(
+            /\s*/g, "") == "") {
+            that.$message('请填写招聘岗位');
+          } else if (that.insertJobDto.subjectName.indexOf(" ") != -1) {
+            that.$message('招聘岗位不能包含空格')
+          } else if (that.insertJobDto.subjectName.length > 50) {
+            that.$message('招聘岗位只能在50字以内');
           } else if (that.insertJobDto.educationId == '') {
-            that.$message('请选择学历');
+            that.$message('请选择学历限制');
           } else if (that.insertJobDto.num <= 0) {
             that.$message('招聘人数不能小于0');
           } else if (that.insertJobDto.num > 2147483647) {
@@ -951,7 +960,7 @@
           } else {
             axios({
                 method: 'post',
-                url: 'http://154.8.201.198:8081/edu/eduRear/eduJob/insertEduJob',
+                url: this.commenUrl+'/edu/eduRear/eduJob/insertEduJob',
                 data: qs.stringify(that.insertJobDto),
                 headers: {
                   token: localStorage.getItem('token')
@@ -981,10 +990,15 @@
         } else if (that.update_job == 1) {
           if (that.insertJobDto.unitId == '') {
             that.$message('请选择招聘单位/学校');
-          } else if (that.insertJobDto.subjectId == '') {
-            that.$message('请选择岗位');
+          } else if(that.insertJobDto.subjectName == '' || that.insertJobDto.subjectName == null || that.insertJobDto.subjectName.replace(
+            /\s*/g, "") == "") {
+            that.$message('请填写招聘岗位');
+          } else if (that.insertJobDto.subjectName.indexOf(" ") != -1) {
+            that.$message('招聘岗位不能包含空格')
+          } else if (that.insertJobDto.subjectName.length > 50) {
+            that.$message('招聘岗位只能在50字以内');
           } else if (that.insertJobDto.educationId == '') {
-            that.$message('请选择学历');
+            that.$message('请选择学历限制');
           } else if (that.insertJobDto.num <= 0) {
             that.$message('招聘人数不能小于0');
           } else if (that.insertJobDto.num > 2147483647) {
@@ -994,7 +1008,7 @@
           } else {
             axios({
                 method: 'post',
-                url: 'http://154.8.201.198:8081/edu/eduRear/eduJob/updateEduJob',
+                url: this.commenUrl+'/edu/eduRear/eduJob/updateEduJob',
                 data: qs.stringify(that.insertJobDto),
                 headers: {
                   token: localStorage.getItem('token')
@@ -1037,7 +1051,7 @@
           } else {
             axios({
                 method: 'post',
-                url: 'http://154.8.201.198:8081/edu/eduRear/eduUnit/insertEduUnit',
+                url: this.commenUrl+'/edu/eduRear/eduUnit/insertEduUnit',
                 data: qs.stringify(that.insertUnitDto),
                 headers: {
                   token: localStorage.getItem('token')
@@ -1075,7 +1089,7 @@
           } else {
             axios({
                 method: 'post',
-                url: 'http://154.8.201.198:8081/edu/eduRear/eduUnit/updateEduUnit',
+                url: this.commenUrl+'/edu/eduRear/eduUnit/updateEduUnit',
                 data: qs.stringify(that.insertUnitDto),
                 headers: {
                   token: localStorage.getItem('token')
@@ -1119,7 +1133,7 @@
           } else {
             axios({
                 method: 'post',
-                url: 'http://154.8.201.198:8081/edu/eduRear/eduSubject/insertSubject',
+                url: this.commenUrl+'/edu/eduRear/eduSubject/insertSubject',
                 data: qs.stringify(that.insertSubjectDto),
                 headers: {
                   token: localStorage.getItem('token')
@@ -1157,7 +1171,7 @@
           } else {
             axios({
                 method: 'post',
-                url: 'http://154.8.201.198:8081/edu/eduRear/eduSubject/updateSubject',
+                url: this.commenUrl+'/edu/eduRear/eduSubject/updateSubject',
                 data: qs.stringify(that.insertSubjectDto),
                 headers: {
                   token: localStorage.getItem('token')
@@ -1196,7 +1210,7 @@
         }).then(() => {
           axios({
               method: 'post',
-              url: 'http://154.8.201.198:8081/edu/eduRear/eduJob/delEduJob',
+              url: this.commenUrl+'/edu/eduRear/eduJob/delEduJob',
               data: qs.stringify(that.deleteDto),
               headers: {
                 token: localStorage.getItem('token')
@@ -1233,7 +1247,7 @@
         }).then(() => {
           axios({
               method: 'post',
-              url: 'http://154.8.201.198:8081/edu/eduRear/eduSubject/delEduSubject',
+              url: this.commenUrl+'/edu/eduRear/eduSubject/delEduSubject',
               data: qs.stringify(that.deleteDto),
               headers: {
                 token: localStorage.getItem('token')
@@ -1270,7 +1284,7 @@
         }).then(() => {
           axios({
               method: 'post',
-              url: 'http://154.8.201.198:8081/edu/eduRear/eduUnit/delEduUnit',
+              url: this.commenUrl+'/edu/eduRear/eduUnit/delEduUnit',
               data: qs.stringify(that.deleteDto),
               headers: {
                 token: localStorage.getItem('token')
@@ -1305,7 +1319,7 @@
   .right-box {
     width: calc(100vw - 145px - 34px);
     height: calc(100vh - 57px - 34px);
-    min-width: calc(1366px - 145px - 34px);
+    min-width: calc(1200px - 145px - 34px);
     background: #FFFFFF;
     margin-top: 12px;
     margin-left: 9px;
@@ -1615,6 +1629,7 @@
     line-height: 23px;
     float: left;
     padding-left: 4px;
+    font-size: 11px;
   }
 
   .ppddown-img {
@@ -1656,5 +1671,14 @@
 
   .input_file {
     display: none;
+  }
+  .ts1{
+    padding: 0px;
+  }
+  .ts1 .scroll_box{
+    max-height: 206px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 10px 0;
   }
 </style>

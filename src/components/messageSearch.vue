@@ -64,7 +64,7 @@
       <!-- 弹窗 -->
       <div class="ms-popup" v-if="ms_popup == 1">
         <div ref="msp_detailbox" class="msp-detailbox">
-          <div class="mspd-title">
+          <div class="mspd-title clearfix">
             <div class="mspdt-title">{{popupData.name}}报名表</div>
             <img src="@/assets/close.png" style="cursor: pointer;" @click="hidePopup()" />
           </div>
@@ -115,7 +115,7 @@
                   <div class="mspd-style2 mspddetail">{{popupData.certificationInfo.serialNumber}}</div>
                 </div>
               </div>
-              <img class="mspd-detail2-right" :src="'http://154.8.201.198:8081' + popupData.photo" />
+              <img class="mspd-detail2-right" :src="commenUrl+'' + popupData.photo" />
             </div>
             <div class="mspd-detail3">
               <div class="mspd-detail1 clearfix">
@@ -201,8 +201,14 @@
                 <div class="mspd-style mspddetail" v-else>{{popupData.remark}}</div>
               </div>
             </div>
+            <div class="zmcl">
+              <div class="zmcl_tle">证明材料</div>
+              <div class="zmcl_pic clearfix">
+                <img @click="showVisible(index)" v-for="(item,index) in popupData.credentials" :key="index" class="fl" :src="commenUrl+''+item.url" alt="">
+              </div>
+            </div>
             <div style="width: calc(100% - 42px);height: 1px;background: #D7D7D7;margin: 5px 21px;"></div>
-            <div class="mspd-title">
+            <div class="mspd-title clearfix">
               <div class="mspdt-title">审核记录</div>
             </div>
             <div class="mspd-detail5">
@@ -250,6 +256,21 @@
         </div>
       </div>
     </div>
+    <el-dialog class="ts" :visible.sync="picVisible">
+      <div class="close" @click="hideVisible">
+        <img src="../assets/tcclose.png" alt="">
+      </div>
+      <div class="swiper_box">
+        <swiper :options="swiperOption" ref="myswiper">
+          <swiper-slide class="swiper-slide" v-for="(item,index) in popupData.credentials" :key="index">
+            <img :src="commenUrl+''+item.url"/>
+          </swiper-slide>
+        </swiper>
+        <!-- 左右箭头 -->
+        <div class="swiper-button-prev" slot="button-prev"></div>
+        <div class="swiper-button-next" slot="button-next"></div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -275,10 +296,26 @@
           'isverifyRemark': ''
         },
         searchName: '',
-        searchTotal: 0
+        searchTotal: 0,
+        picVisible:false,
+        swiperOption:{}
       }
     },
-    created() {},
+    created() {
+      this.swiperOption = {
+        observer:true,//修改swiper自己或子元素时，自动初始化swiper
+        observeParents:true,
+        autoHeight:true,
+        //设置点击箭头
+        prevButton: '.swiper-button-prev',
+        nextButton: '.swiper-button-next',
+        buttonDisabledClass: 'my-button-disabled',
+        //自动轮播
+        autoplay:false,
+        //开启循环模式
+        loop: false
+      }
+    },
     mounted() {
       this.popup_height = window.innerHeight + 'px';
     },
@@ -301,6 +338,13 @@
       hidePopup() {
         this.ms_popup = 0;
       },
+      showVisible(num){
+        this.picVisible = true;
+        this.$refs.myswiper.swiper.slideTo(num,0);
+      },
+      hideVisible(){
+        this.picVisible = false;
+      },
       showReject() {
         this.reject_popup = 1;
       },
@@ -318,7 +362,7 @@
         var that = this;
         axios({
           method:'post',
-          url:'http://154.8.201.198:8081/edu/eduRear/eduPersonnelAllocation/list',
+          url:this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/list',
           data: qs.stringify(this.searchDto),
           headers: {
             token: localStorage.getItem('token')
@@ -355,7 +399,7 @@
         that.auditDto.isverify = '2';
         axios({
           method:'post',
-          url:'http://154.8.201.198:8081/edu/eduRear/eduPersonnelAllocation/audit',
+          url:this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/audit',
           data: qs.stringify(this.auditDto),
           headers: {
             token: localStorage.getItem('token')
@@ -393,7 +437,7 @@
         } else {
           axios({
             method:'post',
-            url:'http://154.8.201.198:8081/edu/eduRear/eduPersonnelAllocation/audit',
+            url:this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/audit',
             data: qs.stringify(this.auditDto),
             headers: {
               token: localStorage.getItem('token')
@@ -423,7 +467,7 @@
         }
       },
       exportPDF(id) {
-        window.location.href = 'http://154.8.201.198:8081/edu/recruitment/exportPDF?teacherId=' + id + '&tableInfo=all';
+        window.location.href = this.commenUrl+'/edu/recruitment/exportPDF?teacherId=' + id + '&tableInfo=all';
       },
       format(time, format) {
         var t = new Date(time);
@@ -470,7 +514,7 @@
   .right-box {
     width: calc(100vw - 145px - 34px);
     height: calc(100vh - 57px - 34px);
-    min-width: calc(1366px - 145px - 34px);
+    min-width: calc(1200px - 145px - 34px);
     background: #FFFFFF;
     overflow-x: hidden;
     margin-top: 12px;
@@ -704,77 +748,77 @@
     background: rgba(255,255,255,0.8);
   }
 
-  .msp-detailbox {
-    width: 526px;
-    height: 576px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -288px;
-    margin-left: -263px;
-    background: #FFFFFF;
-    box-shadow: 0 4px 13px 1px rgba(0, 0, 0, 0.1);
-    border-radius: 7px;
-  }
+  /*.msp-detailbox {*/
+  /*  width: 726px;*/
+  /*  height: 576px;*/
+  /*  position: absolute;*/
+  /*  top: 50%;*/
+  /*  left: 50%;*/
+  /*  margin-top: -288px;*/
+  /*  margin-left: -263px;*/
+  /*  background: #FFFFFF;*/
+  /*  box-shadow: 0 4px 13px 1px rgba(0, 0, 0, 0.1);*/
+  /*  border-radius: 7px;*/
+  /*}*/
 
-  .mspd-title {
-    width: 498px;
-    height: 39px;
-    margin-left: 14px;
-  }
+  /*.mspd-title {*/
+  /*  width: 498px;*/
+  /*  height: 39px;*/
+  /*  margin-left: 14px;*/
+  /*}*/
 
-  .mspdt-title {
-    width: 474px;
-    height: 26px;
-    line-height: 26px;
-    margin-top: 13px;
-    font-size: 15px;
-    color: #333333;
-    font-weight: 400;
-    float: left;
-  }
+  /*.mspdt-title {*/
+  /*  width: 474px;*/
+  /*  height: 26px;*/
+  /*  line-height: 26px;*/
+  /*  margin-top: 13px;*/
+  /*  font-size: 15px;*/
+  /*  color: #333333;*/
+  /*  font-weight: 400;*/
+  /*  float: left;*/
+  /*}*/
 
-  .mspd-title img {
-    width: 10px;
-    height: 10px;
-    margin-top: 18px;
-    float: left;
-  }
+  /*.mspd-title img {*/
+  /*  width: 10px;*/
+  /*  height: 10px;*/
+  /*  margin-top: 18px;*/
+  /*  float: left;*/
+  /*}*/
 
-  .mspd-detail {
-    width: 526px;
-    height: 449px;
-    overflow-x: hidden;
-  }
+  /*.mspd-detail {*/
+  /*  width: 726px;*/
+  /*  height: 449px;*/
+  /*  overflow-x: hidden;*/
+  /*}*/
 
-  .mspd-detail1 {
-    width: 484px;
-    /*height: 27px;*/
-    margin-left: 21px;
-  }
+  /*.mspd-detail1 {*/
+  /*  width: 484px;*/
+  /*  !*height: 27px;*!*/
+  /*  margin-left: 21px;*/
+  /*}*/
 
-  .mspd-style {
-    /*height: 27px;*/
-    /*line-height: 27px;*/
-    line-height: 16px;
-    padding: 5.5px 0;
-    font-size: 11px;
-    font-weight: 400;
-    float: left;
-    word-wrap:break-word;
-    word-break:normal;
-  }
+  /*.mspd-style {*/
+  /*  !*height: 27px;*!*/
+  /*  !*line-height: 27px;*!*/
+  /*  line-height: 16px;*/
+  /*  padding: 5.5px 0;*/
+  /*  font-size: 11px;*/
+  /*  font-weight: 400;*/
+  /*  float: left;*/
+  /*  word-wrap:break-word;*/
+  /*  word-break:normal;*/
+  /*}*/
 
-  .mspd-style2 {
-    /*height: 25px;*/
-    line-height: 16px;
-    padding: 5.5px 0;
-    font-size: 11px;
-    font-weight: 400;
-    float: left;
-    word-wrap:break-word;
-    word-break:normal;
-  }
+  /*.mspd-style2 {*/
+  /*  !*height: 25px;*!*/
+  /*  line-height: 16px;*/
+  /*  padding: 5.5px 0;*/
+  /*  font-size: 11px;*/
+  /*  font-weight: 400;*/
+  /*  float: left;*/
+  /*  word-wrap:break-word;*/
+  /*  word-break:normal;*/
+  /*}*/
 
   .nr1{
     width: calc(100% - 16px - 16px - 140px);
@@ -788,11 +832,11 @@
     text-align: justify;
   }
 
-  .mspddetail {
-    padding-left: 8px;
-    padding-right: 8px;
-    color: #333333;
-  }
+  /*.mspddetail {*/
+  /*  padding-left: 8px;*/
+  /*  padding-right: 8px;*/
+  /*  color: #333333;*/
+  /*}*/
 
   .mspdtitle2 {
     width: 50px;
@@ -812,43 +856,43 @@
     /* text-align: justify; */
   }
 
-  .gx {
-    width: 60px;
-    text-align: center;
-    padding: 4px 0 !important;
-  }
+  /*.gx {*/
+  /*  width: 60px;*/
+  /*  text-align: center;*/
+  /*  padding: 4px 0 !important;*/
+  /*}*/
 
-  .xm {
-    width: 100px;
-    text-align: center;
-    padding: 4px 0 !important;
-  }
+  /*.xm {*/
+  /*  width: 100px;*/
+  /*  text-align: center;*/
+  /*  padding: 4px 0 !important;*/
+  /*}*/
 
-  .zzmm {
-    width: 90px;
-    text-align: center;
-    padding: 4px 0 !important;
-  }
+  /*.zzmm {*/
+  /*  width: 90px;*/
+  /*  text-align: center;*/
+  /*  padding: 4px 0 !important;*/
+  /*}*/
 
-  .gzdwjzw {
-    width: 200px;
-    text-align: center;
-    padding: 4px 0 !important;
-  }
+  /*.gzdwjzw {*/
+  /*  width: 200px;*/
+  /*  text-align: center;*/
+  /*  padding: 4px 0 !important;*/
+  /*}*/
 
   .mspd2l-4 {
     line-height: 25px;
   }
 
-  .mspd-detail2 {
-    width: 484px;
-    /*height: 150px;*/
-    margin-left: 21px;
-  }
+  /*.mspd-detail2 {*/
+  /*  width: 484px;*/
+  /*  !*height: 150px;*!*/
+  /*  margin-left: 21px;*/
+  /*}*/
 
-  .mspd-detail2-left {
-    float: left;
-  }
+  /*.mspd-detail2-left {*/
+  /*  float: left;*/
+  /*}*/
 
   .mspd-detail2-right {
     float: right;
@@ -860,37 +904,37 @@
     border-radius: 2px;/* no */
   }
 
-  .mspd2l {
-    width: 369px;
-    /*height: 25px;*/
-  }
+  /*.mspd2l {*/
+  /*  width: 369px;*/
+  /*  !*height: 25px;*!*/
+  /*}*/
 
-  .mspd-buttonbox {
-    width: 526px;
-    height: 28px;
-    margin-top: 23px;
-  }
+  /*.mspd-buttonbox {*/
+  /*  width: 526px;*/
+  /*  height: 28px;*/
+  /*  margin-top: 23px;*/
+  /*}*/
 
-  .mspd-buttonstyle {
-    width: 85px;
-    height: 28px;
-    line-height: 28px;
-    text-align: center;
-    font-size: 13px;
-    color: #FFFFFF;
-    font-weight: 400;
-    border-radius: 14px;
-  }
+  /*.mspd-buttonstyle {*/
+  /*  width: 85px;*/
+  /*  height: 28px;*/
+  /*  line-height: 28px;*/
+  /*  text-align: center;*/
+  /*  font-size: 13px;*/
+  /*  color: #FFFFFF;*/
+  /*  font-weight: 400;*/
+  /*  border-radius: 14px;*/
+  /*}*/
 
-  .tgorjj {
-    margin-left: 118px !important;
-  }
+  /*.tgorjj {*/
+  /*  margin-left: 118px !important;*/
+  /*}*/
 
-  .mspd-reject {
-    background: #FF9A2E;
-    border: 1px solid #FF9A2E; /* no */
-    margin-left: 97px;
-  }
+  /*.mspd-reject {*/
+  /*  background: #FF9A2E;*/
+  /*  border: 1px solid #FF9A2E; !* no *!*/
+  /*  margin-left: 97px;*/
+  /*}*/
 
   .mspd-pass {
     background: #436EF3;
@@ -995,27 +1039,95 @@
     color: #999999;
   }
 
-  .shzt {
-    width: 60px;
-    text-align: center;
-    padding: 4px 0 !important;
-  }
+  /*.shzt {*/
+  /*  width: 60px;*/
+  /*  text-align: center;*/
+  /*  padding: 4px 0 !important;*/
+  /*}*/
 
-  .shz {
-    width: 94px;
-    text-align: center;
-    padding: 4px 0 !important;
-  }
+  /*.shz {*/
+  /*  width: 94px;*/
+  /*  text-align: center;*/
+  /*  padding: 4px 0 !important;*/
+  /*}*/
 
-  .shsj {
-    width: 114px;
-    text-align: center;
-    padding: 4px 0 !important;
-  }
+  /*.shsj {*/
+  /*  width: 114px;*/
+  /*  text-align: center;*/
+  /*  padding: 4px 0 !important;*/
+  /*}*/
 
-  .shly {
-    width: 194px;
-    text-align: center;
-    padding: 4px 0 !important;
+  /*.shly {*/
+  /*  width: 194px;*/
+  /*  text-align: center;*/
+  /*  padding: 4px 0 !important;*/
+  /*}*/
+  /*.zmcl{*/
+  /*  margin-left: 21px;*/
+  /*}*/
+  .zmcl .zmcl_tle{
+    display: block;
+    line-height: 16px;
+    padding: 5.5px 0;
+    font-size: 16px;
+    font-weight: 400;
+    word-wrap:break-word;
+    word-break:normal;
+    color: #999999;
+  }
+  .zmcl_pic img{
+    width: 150px;
+    height: 100px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+  .swiper-button-prev{
+    position: absolute;
+    left: 10px !important;
+    width: 54px !important;
+    height: 54px !important;
+    background: url("../assets/left.png") !important;
+    background-size: 54px 54px !important;
+    background-repeat: no-repeat !important;
+  }
+  .swiper-button-prev.my-button-disabled{
+    background: url("../assets/left_b.png") !important;
+    background-size: 54px 54px !important;
+    background-repeat: no-repeat !important;
+  }
+  .swiper-button-prev:focus{
+    outline: none;
+  }
+  .swiper-button-prev:after{
+    display: none;
+  }
+  .swiper-button-next{
+    position: absolute;
+    right: 10px;
+    width: 54px !important;
+    height: 54px !important;
+    background: url("../assets/right.png") !important;
+    background-size: 54px 54px !important;
+    background-repeat: no-repeat !important;
+  }
+  .swiper-button-next.my-button-disabled{
+    background: url("../assets/right_b.png") !important;
+    background-size: 54px 54px !important;
+    background-repeat: no-repeat !important;
+  }
+  .swiper-button-next:focus{
+    outline: none;
+  }
+  .swiper-button-next:after{
+    display: none;
+  }
+  .close{
+    padding: 10px 20px;
+    text-align: right;
+  }
+  .close img{
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
   }
 </style>

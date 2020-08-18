@@ -58,7 +58,7 @@
         var that = this;
         axios({
           method:'post',
-          url:'http://154.8.201.198:8081/edu/eduRear/eduApplySet/applyById',
+          url:this.commenUrl+'/edu/eduRear/eduApplySet/applyById',
           data: qs.stringify(that.detailDto),
           headers: {
             token: localStorage.getItem('token')
@@ -79,9 +79,6 @@
             }
           }
         })
-        .catch(function () {
-          that.$message('失败');
-        });
       }
     },
   }

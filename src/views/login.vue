@@ -65,10 +65,11 @@
           that.data.password = that.password;
           axios({
             method:'post',
-            url:'http://154.8.201.198:8081/edu/eduRear/user/login',
+            url:this.commenUrl+'/edu/eduRear/user/login',
             data: qs.stringify(that.data),
           })
           .then(function(res) {
+            console.log(res)
             if (res.status == 200) {
               if (res.data.code == 200) {
                 that.$message('登录成功');
@@ -83,9 +84,6 @@
               }
             }
           })
-          .catch(function () {
-            that.$message('账号或密码错误');
-          });
         }
       }
     },

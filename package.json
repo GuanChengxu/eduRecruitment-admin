@@ -14,6 +14,7 @@
     "@ckeditor/ckeditor5-build-classic": "^19.0.2",
     "@ckeditor/ckeditor5-vue": "^1.0.1",
     "axios": "^0.19.2",
+    "classlist-polyfill": "^1.2.0",
     "element-ui": "^2.13.2",
     "flex-native": "^1.2.0",
     "ie-placeholder": "^1.0.0",
@@ -23,6 +24,7 @@
     "qrcodejs2": "0.0.2",
     "qs": "^6.9.1",
     "vue": "^2.5.2",
+    "vue-awesome-swiper": "^2.6.7",
     "vue-clipboard2": "^0.3.1",
     "vue-router": "^3.0.1",
     "vue-upload-component": "^2.8.20"

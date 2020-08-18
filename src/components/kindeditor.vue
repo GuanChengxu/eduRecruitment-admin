@@ -26,7 +26,8 @@
         type: String
       },
       height: {
-        type: String
+        type: String,
+        default: 240
       },
       minWidth: {
         type: Number,
@@ -45,7 +46,7 @@
             'justifyfull', 'insertorderedlist', 'insertunorderedlist', 'indent', 'outdent', 'subscript',
             'superscript', 'clearhtml', 'quickformat', 'selectall', '/',
             'formatblock', 'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold',
-            'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', '|', 
+            'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', '|', 'image',
             'insertfile', 'table', 'hr', 'link', 'unlink'
           ]
         }

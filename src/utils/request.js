@@ -5,7 +5,7 @@ import { Message } from 'element-ui'
 import router from '../router'
 
 const service = axios.create({
-  baseURL: 'http://sw.sdrhup.com:8080/standrad', // 接口地址
+  baseURL: '', // 接口地址
   timeout: 10000
 })
 // service.interceptors.request.use(

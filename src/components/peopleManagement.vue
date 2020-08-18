@@ -39,11 +39,12 @@
         <div v-else class="pm-search-school pulldown">{{schoolName}}</div>
         <el-dropdown class="pm-search-subject pulldown" style="cursor: pointer;" trigger="click" @command="pdHandleCommand">
           <div class="pulldown-div">
-            {{postName}}<img class="pulldown-img" src="../assets/down.png" />
+            <div class="hidden_name">{{postName}}</div>
+            <img class="pulldown-img" src="../assets/down.png" />
           </div>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item :command="null" v-if="grade != 3 || grade != '3'">全部</el-dropdown-item>
-            <el-dropdown-item v-for="(pd,pdidx) in postData" :key="pdidx" :command="pd">{{pd.name}}</el-dropdown-item>
+            <el-dropdown-item v-for="(pd,pdidx) in postData" :key="pdidx" :command="pd">{{pd.subjectName}}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
         <input type="text" class="pm-search-name" v-model="recTeacher.name" placeholder="请输入姓名" @focus="recTeacher.name = ''" />
@@ -86,7 +87,7 @@
         <div class="pmd-style pml-number">{{pdidx + 1}}</div>
         <div class="pmd-style pml-name">{{pd.name}}</div>
         <div class="pmd-style pml-photo">
-          <img :src="'http://154.8.201.198:8081' + pd.photo" />
+          <img :src="commenUrl+'' + pd.photo" />
         </div>
         <div class="pmd-style pml-sex" v-if="pd.sex == 0">男</div>
         <div class="pmd-style pml-sex" v-else-if="pd.sex == 1">女</div>
@@ -108,7 +109,7 @@
       <!-- 弹窗 -->
       <div class="ms-popup" v-if="ms_popup == 1">
         <div ref="msp_detailbox" class="msp-detailbox">
-          <div class="mspd-title">
+          <div class="mspd-title clearfix">
             <div class="mspdt-title">{{popupData.name}}报名表</div>
             <img src="@/assets/close.png" style="cursor: pointer;" @click="hidePopup()" />
           </div>
@@ -159,7 +160,7 @@
                   <div class="mspd-style2 mspddetail">{{popupData.certificationInfo.serialNumber}}</div>
                 </div>
               </div>
-              <img class="mspd-detail2-right" :src="'http://154.8.201.198:8081' + popupData.photo" />
+              <img class="mspd-detail2-right" :src="commenUrl+'' + popupData.photo" />
             </div>
             <div class="mspd-detail3">
               <div class="mspd-detail1 clearfix">
@@ -245,8 +246,14 @@
                 <div class="mspd-style mspddetail" v-else>{{popupData.remark}}</div>
               </div>
             </div>
+            <div class="zmcl">
+              <div class="zmcl_tle">证明材料</div>
+              <div class="zmcl_pic clearfix">
+                <img @click="showVisible(index)" v-for="(item,index) in popupData.credentials" :key="index" class="fl" :src="commenUrl+''+item.url" alt="">
+              </div>
+            </div>
             <div style="width: calc(100% - 42px);height: 1px;background: #D7D7D7;margin: 5px 21px;"></div>
-            <div class="mspd-title">
+            <div class="mspd-title clearfix">
               <div class="mspdt-title">审核记录</div>
             </div>
             <div class="mspd-detail5">
@@ -294,6 +301,21 @@
         </div>
       </div>
     </div>
+    <el-dialog class="ts" :visible.sync="picVisible">
+      <div class="close" @click="hideVisible">
+        <img src="../assets/tcclose.png" alt="">
+      </div>
+      <div class="swiper_box">
+        <swiper :options="swiperOption" ref="myswiper">
+          <swiper-slide class="swiper-slide" v-for="(item,index) in popupData.credentials" :key="index">
+            <img :src="commenUrl+''+item.url"/>
+          </swiper-slide>
+        </swiper>
+        <!-- 左右箭头 -->
+        <div class="swiper-button-prev" slot="button-prev"></div>
+        <div class="swiper-button-next" slot="button-next"></div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -329,7 +351,7 @@
         recTeacher: {
           'recruitId': '',
           'unitId': '',
-          'subjectId': '',
+          'postId': '',
           'name': '',
           'idNumber': '',
           'isverify': '1'
@@ -355,10 +377,26 @@
         },
         reject_popup: 0,
         grade: '0',
-        sortNum: 0
+        sortNum: 0,
+        picVisible:false,
+        swiperOption:{}
       }
     },
-    created() {},
+    created() {
+      this.swiperOption = {
+        observer:true,//修改swiper自己或子元素时，自动初始化swiper
+        observeParents:true,
+        autoHeight:true,
+        //设置点击箭头
+        prevButton: '.swiper-button-prev',
+        nextButton: '.swiper-button-next',
+        buttonDisabledClass: 'my-button-disabled',
+        //自动轮播
+        autoplay:false,
+        //开启循环模式
+        loop: false
+      }
+    },
     mounted() {
       this.recTeacher.recruitId = localStorage.getItem('applyId');
       this.downListDto.applyId = localStorage.getItem('applyId');
@@ -413,6 +451,13 @@
       hidePopup() {
         this.ms_popup = 0;
       },
+      showVisible(num){
+        this.picVisible = true;
+        this.$refs.myswiper.swiper.slideTo(num,0);
+      },
+      hideVisible(){
+        this.picVisible = false;
+      },
       showReject() {
         this.reject_popup = 1;
       },
@@ -427,15 +472,16 @@
         } else {
           this.recTeacher.unitId = command.unitId;
           this.schoolName = command.name;
+          this.getPostList();
         }
       },
       pdHandleCommand(command) {
         if (command == null) {
-          this.recTeacher.subjectId = '';
+          this.recTeacher.postId = '';
           this.postName = '全部';
         } else {
-          this.recTeacher.subjectId = command.subjectId;
-          this.postName = command.name;
+          this.recTeacher.postId = command.jobId;
+          this.postName = command.subjectName;
         }
       },
       swichMenu: async function(current) { //点击其中一个 menu
@@ -459,7 +505,7 @@
         var that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduPersonnelAllocation/list',
+            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/list',
             data: qs.stringify(this.recTeacher),
             headers: {
               token: localStorage.getItem('token')
@@ -499,7 +545,7 @@
         var that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduPersonnelAllocation/unitList',
+            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/unitList',
             data: qs.stringify(this.downListDto),
             headers: {
               token: localStorage.getItem('token')
@@ -514,7 +560,6 @@
                   that.recTeacher.unitId = res.data.data[0].unitId;
                   that.schoolName = res.data.data[0].name;
                 }
-                that.getPeopleList();
               } else if (res.data.code == 500) {
                 if (res.data.msg == '您的Session时效性已过，请重新登录!') {
                   that.$message(res.data.msg);
@@ -534,8 +579,8 @@
         var that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduPersonnelAllocation/subject',
-            data: qs.stringify(this.downListDto),
+            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/subject',
+            data:qs.stringify({applyId:this.downListDto.applyId, unitId:this.recTeacher.unitId}),
             headers: {
               token: localStorage.getItem('token')
             }
@@ -545,8 +590,13 @@
               if (res.data.code == 200) {
                 that.postData = res.data.data;
                 if (that.grade == 3 || that.grade == '3') {
-                  that.postName = that.postData[0].name;
+                  that.postName = that.postData.length>0?that.postData[0].subjectName:'';
+                  that.recTeacher.postId = that.postData.length>0?that.postData[0].jobId:'';
+                }else {
+                  that.recTeacher.postId = '';
+                  that.postName = '全部';
                 }
+                that.getPeopleList();
               } else if (res.data.code == 500) {
                 if (res.data.msg == '您的Session时效性已过，请重新登录!') {
                   that.$message(res.data.msg);
@@ -565,7 +615,7 @@
       refresh() {
         var that = this;
         that.recTeacher.unitId = '';
-        that.recTeacher.subjectId = '';
+        that.recTeacher.postId = '';
         that.recTeacher.name = '';
         that.recTeacher.idNumber = '';
         that.recTeacher.isverify = '1';
@@ -574,7 +624,7 @@
         that.currentTab = 0;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduPersonnelAllocation/list',
+            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/list',
             data: qs.stringify(this.recTeacher),
             headers: {
               token: localStorage.getItem('token')
@@ -608,9 +658,10 @@
           });
       },
       doExport() {
+        const that = this;
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduPersonnelAllocation/export',
+            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/export',
             data: qs.stringify(this.recTeacher),
             headers: {
               token: localStorage.getItem('token')
@@ -620,7 +671,7 @@
             if (res.status == 200) {
               if (res.data.code == 200) {
                 var rdm = encodeURI(res.data.msg);
-                var url = 'http://154.8.201.198:8081/edu/common/download?fileName=' + rdm + '&delete=true';
+                var url = that.commenUrl+'/edu/common/download?fileName=' + rdm + '&delete=true';
                 window.open(url, 'top');
               } else if (res.data.code == 500) {
                 if (res.data.msg == '您的Session时效性已过，请重新登录!') {
@@ -643,7 +694,7 @@
         that.auditDto.isverify = '2';
         axios({
             method: 'post',
-            url: 'http://154.8.201.198:8081/edu/eduRear/eduPersonnelAllocation/audit',
+            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/audit',
             data: qs.stringify(this.auditDto),
             headers: {
               token: localStorage.getItem('token')
@@ -682,7 +733,7 @@
         } else {
           axios({
               method: 'post',
-              url: 'http://154.8.201.198:8081/edu/eduRear/eduPersonnelAllocation/audit',
+              url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/audit',
               data: qs.stringify(this.auditDto),
               headers: {
                 token: localStorage.getItem('token')
@@ -713,7 +764,7 @@
         }
       },
       exportPDF(id) {
-        window.location.href = 'http://154.8.201.198:8081/edu/recruitment/exportPDF?teacherId=' + id + '&tableInfo=all';
+        window.location.href = this.commenUrl+'/edu/recruitment/exportPDF?teacherId=' + id + '&tableInfo=all';
       },
       format(time, format) {
         var reg = new RegExp('T', 'g');
@@ -756,7 +807,7 @@
   .right-box {
     width: calc(100vw - 145px - 34px);
     height: calc(100vh - 57px - 34px);
-    min-width: calc(1366px - 145px - 34px);
+    min-width: calc(1200px - 145px - 34px);
     background: #FFFFFF;
     margin-top: 12px;
     margin-left: 9px;
@@ -830,6 +881,21 @@
     text-align: left;
     font-size: 13px;
     color: #333333;
+  }
+
+  .pulldown-div .hidden_name{
+    display: inline-block;
+    width: calc(100% - 9px);
+    height: 21px;
+    line-height: 21px;
+    text-align: left;
+    font-size: 13px;
+    color: #333333;
+    margin-right: 0px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    white-space:nowrap;
   }
 
   .pd-school {
@@ -1064,30 +1130,30 @@
   }
 
   .msp-detailbox {
-    width: 526px;
-    height: 576px;
+    width: 50%;
+    min-width: 840px;
+    height: 80%;
     position: absolute;
-    top: 50%;
+    top: 10%;
     left: 50%;
-    margin-top: -288px;
-    margin-left: -263px;
+    transform: translateX(-50%);
     background: #FFFFFF;
     box-shadow: 0 4px 13px 1px rgba(0, 0, 0, 0.1);
     border-radius: 7px;
   }
 
   .mspd-title {
-    width: 498px;
-    height: 39px;
+    width: calc(100% - 28px);
     margin-left: 14px;
+    padding-bottom: 10px;
   }
 
   .mspdt-title {
     width: 474px;
-    height: 26px;
+    height: 32px;
     line-height: 26px;
     margin-top: 13px;
-    font-size: 15px;
+    font-size: 24px;
     color: #333333;
     font-weight: 400;
     float: left;
@@ -1097,17 +1163,17 @@
     width: 10px;
     height: 10px;
     margin-top: 18px;
-    float: left;
+    float: right;
   }
 
   .mspd-detail {
-    width: 526px;
-    height: 449px;
+    width: 100%;
+    height: calc(100% - 55px - 28px - 23px - 30px);
     overflow-x: hidden;
   }
 
   .mspd-detail1 {
-    width: 484px;
+    width: calc(100% - 42px);
     min-height: 27px;
     margin-left: 21px;
   }
@@ -1116,8 +1182,8 @@
     /*height: 27px;*/
     /*line-height: 27px;*/
     line-height: 16px;
-    padding: 5.5px 0;
-    font-size: 11px;
+    padding: 8px 0;
+    font-size: 16px;
     font-weight: 400;
     float: left;
     word-wrap: break-word;
@@ -1127,8 +1193,8 @@
   .mspd-style2 {
     /*height: 25px;*/
     line-height: 16px;
-    padding: 5.5px 0;
-    font-size: 11px;
+    padding: 8px 0;
+    font-size: 16px;
     font-weight: 400;
     float: left;
     word-wrap: break-word;
@@ -1149,8 +1215,8 @@
   }
 
   .mspddetail {
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-left: 23px;
+    padding-right: 23px;
     color: #333333;
   }
 
@@ -1173,49 +1239,49 @@
   }
 
   .gx {
-    width: 60px;
+    width: 120px;
     text-align: center;
     padding: 4px 0 !important;
   }
 
   .xm {
-    width: 100px;
+    width: 150px;
     text-align: center;
     padding: 4px 0 !important;
   }
 
   .zzmm {
-    width: 90px;
+    width: 180px;
     text-align: center;
     padding: 4px 0 !important;
   }
 
   .gzdwjzw {
-    width: 200px;
+    width: 300px;
     text-align: center;
     padding: 4px 0 !important;
   }
 
   .shzt {
-    width: 60px;
+    width: 120px;
     text-align: center;
     padding: 4px 0 !important;
   }
 
   .shz {
-    width: 94px;
+    width: 150px;
     text-align: center;
     padding: 4px 0 !important;
   }
 
   .shsj {
-    width: 114px;
+    width: 180px;
     text-align: center;
     padding: 4px 0 !important;
   }
 
   .shly {
-    width: 194px;
+    width: 300px;
     text-align: center;
     padding: 4px 0 !important;
   }
@@ -1225,13 +1291,14 @@
   }
 
   .mspd-detail2 {
-    width: 484px;
+    width: calc(100% - 42px);
     /*height: 150px;*/
     margin-left: 21px;
   }
 
   .mspd-detail2-left {
     float: left;
+    width: calc(100% - 208px);
   }
 
   .mspd-detail2-right {
@@ -1246,12 +1313,12 @@
   }
 
   .mspd2l {
-    width: 369px;
+    width: 100%;
     /*height: 25px;*/
   }
 
   .mspd-buttonbox {
-    width: 526px;
+    width: 100%;
     height: 28px;
     margin-top: 23px;
   }
@@ -1267,15 +1334,15 @@
     border-radius: 14px;
   }
 
-  .tgorjj {
-    margin-left: 118px !important;
-  }
+  /*.tgorjj {*/
+  /*  margin-left: 118px !important;*/
+  /*}*/
 
   .mspd-reject {
     background: #FF9A2E;
     border: 1px solid #FF9A2E;
     /* no */
-    margin-left: 97px;
+    margin-left: calc((100% - 85px - 85px - 85px - 38px - 38px) / 2);
   }
 
   .mspd-pass {
@@ -1384,6 +1451,74 @@
   }
 
   .xiaoshou {
+    cursor: pointer;
+  }
+  .zmcl{
+    margin-left: 21px;
+  }
+  .zmcl .zmcl_tle{
+    display: block;
+    line-height: 16px;
+    padding: 5.5px 0;
+    font-size: 16px;
+    font-weight: 400;
+    word-wrap:break-word;
+    word-break:normal;
+    color: #999999;
+  }
+  .zmcl_pic img{
+    width: 150px;
+    height: 100px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+  .swiper-button-prev{
+    position: absolute;
+    left: 10px !important;
+    width: 54px !important;
+    height: 54px !important;
+    background: url("../assets/left.png") !important;
+    background-size: 54px 54px !important;
+    background-repeat: no-repeat !important;
+  }
+  .swiper-button-prev.my-button-disabled{
+    background: url("../assets/left_b.png") !important;
+    background-size: 54px 54px !important;
+    background-repeat: no-repeat !important;
+  }
+  .swiper-button-prev:focus{
+    outline: none;
+  }
+  .swiper-button-prev:after{
+    display: none;
+  }
+  .swiper-button-next{
+    position: absolute;
+    right: 10px;
+    width: 54px !important;
+    height: 54px !important;
+    background: url("../assets/right.png") !important;
+    background-size: 54px 54px !important;
+    background-repeat: no-repeat !important;
+  }
+  .swiper-button-next.my-button-disabled{
+    background: url("../assets/right_b.png") !important;
+    background-size: 54px 54px !important;
+    background-repeat: no-repeat !important;
+  }
+  .swiper-button-next:focus{
+    outline: none;
+  }
+  .swiper-button-next:after{
+    display: none;
+  }
+  .close{
+    padding: 10px 20px;
+    text-align: right;
+  }
+  .close img{
+    width: 14px;
+    height: 14px;
     cursor: pointer;
   }
 </style>

@@ -187,7 +187,7 @@
         }
         axios({
           method:'post',
-          url:'http://154.8.201.198:8081/edu/eduRear/eduApplySet/updateIsShow',
+          url:this.commenUrl+'/edu/eduRear/eduApplySet/updateIsShow',
           data: qs.stringify(that.updateIsShowDto),
           headers: {
             token: localStorage.getItem('token')
@@ -217,7 +217,7 @@
         var that = this;
         axios({
           method:'post',
-          url:'http://154.8.201.198:8081/edu/eduRear/eduApplySet/list',
+          url:this.commenUrl+'/edu/eduRear/eduApplySet/list',
           data: qs.stringify(that.rmListDto),
           headers: {
             token: localStorage.getItem('token')
@@ -252,7 +252,7 @@
         } else {
           axios({
             method:'post',
-            url:'http://154.8.201.198:8081/edu/eduRear/eduApplySet/applySet',
+            url:this.commenUrl+'/edu/eduRear/eduApplySet/applySet',
             data: qs.stringify(that.data),
             headers: {
               token: localStorage.getItem('token')
@@ -289,7 +289,7 @@
         } else {
           axios({
             method:'post',
-            url:'http://154.8.201.198:8081/edu/eduRear/eduApplySet/applySet',
+            url:this.commenUrl+'/edu/eduRear/eduApplySet/applySet',
             data: qs.stringify(that.data),
             headers: {
               token: localStorage.getItem('token')
@@ -327,7 +327,7 @@
         }).then(() => {
           axios({
             method:'post',
-            url:'http://154.8.201.198:8081/edu/eduRear/eduApplySet/deleteApplySet',
+            url:this.commenUrl+'/edu/eduRear/eduApplySet/deleteApplySet',
             data: qs.stringify(that.deleteData),
             headers: {
               token: localStorage.getItem('token')
@@ -366,7 +366,7 @@
     background: #FFFFFF;
     margin-top: 12px;
     margin-left: 9px;
-    min-width: calc(1366px - 145px - 34px);
+    min-width: calc(1200px - 145px - 34px);
   }
 
   .right-title-box {
@@ -646,7 +646,7 @@
   input::-webkit-input-placeholder{
     color: #999999;
   }
-  
+
   @media screen and (max-width: 1600px) {
     .rb-list-title-box {
       width: calc(100% - 48px);
@@ -654,7 +654,7 @@
       margin-left: 24px;
       background: #EFEFEF;
     }
-    
+
     .rb-list-title {
       height: 28px;
       line-height: 28px;
@@ -663,7 +663,7 @@
       font-size: 11px;
       color: #656565;
     }
-    
+
     .rb-list-detail-box {
       width: calc(100% - 48px);
       /* height: 28px; */
@@ -671,7 +671,7 @@
       background: #FFFFFF;
       border-bottom: 1px dashed #E7E7E7;/* no */
     }
-    
+
     .rb-list-detail {
       /* height: 28px; */
       line-height: 28px;

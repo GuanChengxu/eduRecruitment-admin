@@ -2,17 +2,17 @@
   <div>
     <div class="right-box">
       <!-- title -->
-      <div class="am-box">
+      <div class="am-box" style="width: 100%;">
         <div class="am-title-box">
           <div class="am-title-line"></div>
           <div class="am-title">账号列表</div>
         </div>
       </div>
       <!-- 标签 -->
-      <div style="height: 25px;margin-top: 11px;">
+      <div style="height: 25px;margin-top: 11px;width: 100%;">
         <!-- 标签 -->
         <div class="am-scroll-view">
-          <div v-show="grade == '1' || grade == null || grade == 1 || grade == 'null'" :class="[currentTab==0 ? 'amsv-div-act' : 'amsv-div']" class="amsv-div" @click="swichMenu(0)">
+          <div v-show="grade == null || grade == 'null' || grade == ''" :class="[currentTab==0 ? 'amsv-div-act' : 'amsv-div']" class="amsv-div" @click="swichMenu(0)">
             <div class="amsv-div-text">本次招聘一级管理账号</div>
           </div>
           <div v-show="grade == '1' || grade == null || grade == 1 || grade == 'null'" :class="[currentTab==1 ? 'amsv-div-act' : 'amsv-div']" class="amsv-div" @click="swichMenu(1)">
@@ -89,7 +89,7 @@
           <div class="am-listdstyle am-list-pwd3">{{third.password}}</div>
           <div class="am-listdstyle am-list-creator3">{{third.createName}}</div>
           <div class="am-listdstyle am-list-school3">{{third.unitName}}</div>
-          <div class="am-listdstyle am-list-post3">{{third.unitName}} <span v-for="(subjectName,snidx) in third.subjectName1" :key="snidx">{{subjectName}}老师<span v-if="snidx < third.subjectLength-1">,</span></span></div>
+          <div class="am-listdstyle am-list-post3">{{third.unitName}} <span v-for="(subjectName,snidx) in third.subjectName1" :key="snidx">{{subjectName}}<span v-if="snidx < third.subjectLength-1">,</span></span></div>
           <div class="am-listdstyle am-list-operation3">
             <span style="cursor: pointer;" @click="updatePopup(third)">账号修改</span>
             <span style="margin-left: 20px;cursor: pointer;" @click="deleteUser(third.userId,third.grade)">删除</span>
@@ -143,8 +143,10 @@
                 <div class="amdown-div">
                   {{secondUnitName}}<img class="amdown-img" src="../assets/down.png" />
                 </div>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item v-for="(unit,uidx) in unitListData" :key="uidx" :command="unit">{{unit.unitName}}</el-dropdown-item>
+                <el-dropdown-menu class="ts1" slot="dropdown">
+                  <div class="scroll_box">
+                    <el-dropdown-item v-for="(unit,uidx) in unitListData" :key="uidx" :command="unit">{{unit.unitName}}</el-dropdown-item>
+                  </div>
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
@@ -177,12 +179,14 @@
                 <div class="amdown-div">
                   {{thirdUnitName}}<img class="amdown-img" src="../assets/down.png" />
                 </div>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item v-for="(unit,uidx) in unitListData" :key="uidx" :command="unit">{{unit.unitName}}</el-dropdown-item>
+                <el-dropdown-menu class="ts1" slot="dropdown">
+                  <div class="scroll_box">
+                    <el-dropdown-item v-for="(unit,uidx) in unitListData" :key="uidx" :command="unit">{{unit.unitName}}</el-dropdown-item>
+                  </div>
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
-            <div class="am-popup-dbox" v-show="addDto.unitId != ''">
+            <div class="am-popup-dbox noheight" v-show="addDto.unitId != ''">
               <div class="am-popup-dboxtitle">选择分配职位</div>
               <el-checkbox-group v-model="checkboxGroup1">
                 <el-checkbox-button class="am-popup-checkbox" @change="clickJobButton()" v-for="(subject,subidx) in subjectListData" :label="subject"  :key="subidx">{{subject.subjectName}}</el-checkbox-button>
@@ -198,7 +202,7 @@
               <div class="am-popup-dboxtitle">密码</div>
               <input class="am-popup-dboxinput" type="text" v-model="addDto.password" placeholder="请输入密码" @focus="addDto.password = ''"/>
             </div>
-            <div class="am-popup-dbox">
+            <div class="am-popup-dbox noheight">
               <div class="am-popup-dboxtitle">选择分配职位</div>
               <el-checkbox-group v-model="checkboxGroup1">
                 <el-checkbox-button class="am-popup-checkbox" @change="clickJobButton()" v-for="(subject,subidx) in subjectListData" :label="subject"  :key="subidx">{{subject.subjectName}}</el-checkbox-button>
@@ -252,7 +256,8 @@
           'unitId': '',
           'unitName': '',
           'subjectId': '',
-          'subjectName': ''
+          'subjectName': '',
+          'createTime': ''
         },
         firstData: '',
         secondData: '',
@@ -274,7 +279,6 @@
       this.grade = localStorage.getItem('grade');
       this.ulDto.applyId = localStorage.getItem('applyId');
       this.addDto.applyId = localStorage.getItem('applyId');
-      this.getUserList();
       if (this.grade == null || this.grade == 'null') {
         this.currentTab = 0;
       } else if (this.grade == 1 || this.grade == '1') {
@@ -282,6 +286,7 @@
       } else if (this.grade == 2 || this.grade == '2') {
         this.currentTab = 2;
       }
+      this.getUserList();
       this.maskWidth = window.innerWidth + 'px';
       this.maskHeight = window.innerHeight + 'px';
     },
@@ -295,10 +300,10 @@
           this.addDto.subjectName = '';
           for (var i = 0 ; i < this.checkboxGroup1.length ; i ++) {
             if (this.addDto.subjectId == '' && this.addDto.subjectName == '') {
-              this.addDto.subjectId = this.checkboxGroup1[i].subjectId;
+              this.addDto.subjectId = this.checkboxGroup1[i].jobId;
               this.addDto.subjectName = this.checkboxGroup1[i].subjectName;
             } else {
-              this.addDto.subjectId = this.addDto.subjectId + ',' + this.checkboxGroup1[i].subjectId;
+              this.addDto.subjectId = this.addDto.subjectId + ',' + this.checkboxGroup1[i].jobId;
               this.addDto.subjectName = this.addDto.subjectName + ',' + this.checkboxGroup1[i].subjectName;
             }
           }
@@ -381,6 +386,7 @@
           this.addDto.userId = data.userId;
           this.addDto.name = data.name;
           this.addDto.password = data.password;
+          this.addDto.createTime = data.createTime;
         } else if (this.currentTab == 1) {
           this.show_popup0 = 0;
           this.show_popup1 = 1;
@@ -391,6 +397,7 @@
           this.addDto.password = data.password;
           this.addDto.unitId = data.unitId;
           this.addDto.unitName = data.unitName;
+          this.addDto.createTime = data.createTime;
           this.getUnitList();
         } else if (this.currentTab == 2) {
           this.show_popup0 = 0;
@@ -405,6 +412,7 @@
           this.thirdUnitName = data.unitName;
           this.addDto.subjectId = data.subjectId;
           this.addDto.subjectName = data.subjectName;
+          this.addDto.createTime = data.createTime;
           this.getUnitList();
           this.getSubjectList(1,data.subjectId);
         }
@@ -415,7 +423,7 @@
         var that = this;
         axios({
           method:'get',
-          url:'http://154.8.201.198:8081/edu/recruitment/queryRecruitmentSchool?recruitId=' + localStorage.getItem('applyId'),
+          url:this.commenUrl+'/edu/recruitment/queryRecruitmentSchool?recruitId=' + localStorage.getItem('applyId'),
           headers: {
             token: localStorage.getItem('token')
           }
@@ -444,7 +452,7 @@
         if (that.grade != 2 || that.grade != '2') {
           axios({
             method:'get',
-            url:'http://154.8.201.198:8081/edu/recruitment/queryRecruitmentJob?recruitId=' + localStorage.getItem('applyId') + '&unitId=' + that.addDto.unitId,
+            url:this.commenUrl+'/edu/recruitment/queryRecruitmentJob?recruitId=' + localStorage.getItem('applyId') + '&unitId=' + that.addDto.unitId,
             headers: {
               token: localStorage.getItem('token')
             }
@@ -458,7 +466,7 @@
                   that.checkboxGroup1 = []
                   for (var i = 0;i < that.subjectListData.length; i ++) {
                     if (arr.length > 0) {
-                      if (that.subjectListData[i].subjectId == arr[0]) {
+                      if (that.subjectListData[i].jobId == arr[0]) {
                         that.checkboxGroup1.push(that.subjectListData[i]);
                         arr.splice(0,1);
                         i = -1;
@@ -483,7 +491,7 @@
         } else {
           await axios({
             method:'get',
-            url:'http://154.8.201.198:8081/edu/recruitment/queryRecruitmentJob?recruitId=' + localStorage.getItem('applyId') + '&unitId=' + localStorage.getItem('unitId'),
+            url:this.commenUrl+'/edu/recruitment/queryRecruitmentJob?recruitId=' + localStorage.getItem('applyId') + '&unitId=' + localStorage.getItem('unitId'),
             headers: {
               token: localStorage.getItem('token')
             }
@@ -497,7 +505,7 @@
                   that.checkboxGroup1 = []
                   for (var i = 0;i < that.subjectListData.length; i ++) {
                     if (arr.length > 0) {
-                      if (that.subjectListData[i].subjectId == arr[0]) {
+                      if (that.subjectListData[i].jobId == arr[0]) {
                         that.checkboxGroup1.push(that.subjectListData[i]);
                         arr.splice(0,1);
                         i = -1;
@@ -527,7 +535,7 @@
           that.ulDto.grade = '1';
           axios({
             method:'post',
-            url:'http://154.8.201.198:8081/edu/eduRear/user/selectEduUserList',
+            url:this.commenUrl+'/edu/eduRear/user/selectEduUserList',
             data: qs.stringify(this.ulDto),
             headers: {
               token: localStorage.getItem('token')
@@ -555,7 +563,7 @@
           that.ulDto.grade = '2';
           axios({
             method:'post',
-            url:'http://154.8.201.198:8081/edu/eduRear/user/selectEduUserList',
+            url:this.commenUrl+'/edu/eduRear/user/selectEduUserList',
             data: qs.stringify(this.ulDto),
             headers: {
               token: localStorage.getItem('token')
@@ -583,7 +591,7 @@
           that.ulDto.grade = '3';
           axios({
             method:'post',
-            url:'http://154.8.201.198:8081/edu/eduRear/user/selectEduUserList',
+            url:this.commenUrl+'/edu/eduRear/user/selectEduUserList',
             data: qs.stringify(this.ulDto),
             headers: {
               token: localStorage.getItem('token')
@@ -615,6 +623,7 @@
       },
       addUser(keyVal) {
         var that = this;
+        console.log(/^(?=.*[a-z])(?=.*[A-Z])[^]{8,16}$/g.test(keyVal.password))
         if (that.addDto.name == '' || that.addDto.name == null || keyVal.name.replace(/\s*/g, "") == "") {
           that.$message('请输入账号');
         } else if (that.addDto.password == '' || that.addDto.password == null || keyVal.password.replace(/\s*/g, "") == "") {
@@ -623,7 +632,9 @@
           that.$message('账号不能包含空格');
         } else if (keyVal.password.indexOf(" ") != -1) {
           that.$message('密码不能包含空格');
-        }else if (/[\u4E00-\u9FA5]/g.test(keyVal.password)) {
+        } else if (!(/^(?=.*[a-z])(?=.*[A-Z])[^]{8,16}$/g.test(keyVal.password))) {
+          that.$message('密码格式不正确，密码必须包含大写字母和小写字母，长度在8-16位并且不能包含汉字');
+        } else if (/[\u4E00-\u9FA5]/g.test(keyVal.password)) {
           that.$message('密码不能包含汉字');
         } else if (keyVal.name.length > 20) {
           that.$message('账号只能在20个字符以内');
@@ -634,7 +645,7 @@
             that.addDto.grade = '1';
             axios({
               method:'post',
-              url:'http://154.8.201.198:8081/edu/eduRear/user/addUser',
+              url:this.commenUrl+'/edu/eduRear/user/addUser',
               data: qs.stringify(this.addDto),
               headers: {
                 token: localStorage.getItem('token')
@@ -667,7 +678,7 @@
             } else {
               axios({
                 method:'post',
-                url:'http://154.8.201.198:8081/edu/eduRear/user/addUser',
+                url:this.commenUrl+'/edu/eduRear/user/addUser',
                 data: qs.stringify(this.addDto),
                 headers: {
                   token: localStorage.getItem('token')
@@ -706,7 +717,7 @@
             } else {
               axios({
                 method:'post',
-                url:'http://154.8.201.198:8081/edu/eduRear/user/addUser',
+                url:this.commenUrl+'/edu/eduRear/user/addUser',
                 data: qs.stringify(this.addDto),
                 headers: {
                   token: localStorage.getItem('token')
@@ -736,7 +747,7 @@
             that.addDto.grade = '1';
             axios({
               method:'post',
-              url:'http://154.8.201.198:8081/edu/eduRear/user/updateEduUserList',
+              url:this.commenUrl+'/edu/eduRear/user/updateEduUserList',
               data: qs.stringify(this.addDto),
               headers: {
                 token: localStorage.getItem('token')
@@ -768,7 +779,7 @@
             } else {
               axios({
                 method:'post',
-                url:'http://154.8.201.198:8081/edu/eduRear/user/updateEduUserList',
+                url:this.commenUrl+'/edu/eduRear/user/updateEduUserList',
                 data: qs.stringify(this.addDto),
                 headers: {
                   token: localStorage.getItem('token')
@@ -803,7 +814,7 @@
             } else {
               axios({
                 method:'post',
-                url:'http://154.8.201.198:8081/edu/eduRear/user/updateEduUserList',
+                url:this.commenUrl+'/edu/eduRear/user/updateEduUserList',
                 data: qs.stringify(this.addDto),
                 headers: {
                   token: localStorage.getItem('token')
@@ -843,7 +854,7 @@
         }).then(() => {
           axios({
             method:'post',
-            url:'http://154.8.201.198:8081/edu/eduRear/user/delEduUser',
+            url:this.commenUrl+'/edu/eduRear/user/delEduUser',
             data: qs.stringify(this.deleteDto),
             headers: {
               token: localStorage.getItem('token')
@@ -879,7 +890,7 @@
   .right-box {
     width: calc(100vw - 145px - 34px);
     height: calc(100vh - 57px - 34px);
-    min-width: calc(1366px - 145px - 34px);
+    min-width: calc(1200px - 145px - 34px);
     background: #FFFFFF;
     margin-top: 12px;
     margin-left: 9px;
@@ -1066,6 +1077,9 @@
     width: 243px;
     height: 53px;
   }
+  .am-popup-dbox.noheight{
+    height: auto;
+  }
 
   .am-popup-dboxtitle {
     width: 233px;
@@ -1207,6 +1221,11 @@
     box-shadow: 0 4px 13px 1px rgba(0, 0, 0, 0.1);
     border-radius: 7px;
   }
+  .am-popup3 .el-checkbox-group{
+    max-height: 150px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
 
   .am-popup-detail3 {
     width: 243px;
@@ -1227,7 +1246,8 @@
     margin-bottom: 20px;
   }
 
-  .am-popup-checkbox, .el-checkbox-button__inner {
+  .am-popup-checkbox,
+  .el-checkbox-button__inner {
     /* width: 61px !important; */
     height: 21px !important;
     line-height: 21px !important;
@@ -1262,5 +1282,15 @@
 
   .el-checkbox-button:first-child .el-checkbox-button__inner {
     border-left: none;
+  }
+
+  .ts1{
+    padding: 0px;
+  }
+  .ts1 .scroll_box{
+    max-height: 206px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 10px 0;
   }
 </style>
