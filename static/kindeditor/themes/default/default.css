@@ -535,7 +535,7 @@
 	background-color: #F1F1F1;
 	color: #222222;
 	padding: 2px;
-	/* font-family: "sans serif",tahoma,verdana,helvetica; */
+	font-family: "sans serif",tahoma,verdana,helvetica;
 	font-size: 12px;
 	text-align: left;
 	overflow: hidden;
@@ -607,7 +607,7 @@
 	padding:0;
 }
 .ke-colorpicker-cell-top {
-	/* font-family: "sans serif",tahoma,verdana,helvetica; */
+	font-family: "sans serif",tahoma,verdana,helvetica;
 	font-size: 12px;
 	line-height: 24px;
 	border: 1px solid #F0F0EE;
@@ -739,7 +739,7 @@
 	display: block;
 	width: 408px;
 	height: 260px;
-	/* font-family: "sans serif",tahoma,verdana,helvetica; */
+	font-family: "sans serif",tahoma,verdana,helvetica;
 	font-size: 12px;
 	border-color: #848484 #E0E0E0 #E0E0E0 #848484;
 	border-style: solid;
@@ -810,7 +810,7 @@
 	background-position: right -25px;
 	padding: 0 14px 0 12px;
 	margin: 0 0 0 2px;
-	/* font-family: "sans serif",tahoma,verdana,helvetica; */
+	font-family: "sans serif",tahoma,verdana,helvetica;
 	border: 0 none;
 	color: #333;
 	font-size: 12px;
@@ -819,7 +819,7 @@
 /* inputbox */
 .ke-input-text {
 	background-color:#FFFFFF;
-	/* font-family: "sans serif",tahoma,verdana,helvetica; */
+	font-family: "sans serif",tahoma,verdana,helvetica;
 	font-size: 12px;
 	line-height: 17px;
 	height: 17px;
@@ -1074,7 +1074,7 @@
 	display: block;
 	width: 408px;
 	height: 260px;
-	/* font-family: "sans serif",tahoma,verdana,helvetica; */
+	font-family: "sans serif",tahoma,verdana,helvetica;
 	font-size: 12px;
 	border-color: #848484 #E0E0E0 #E0E0E0 #848484;
 	border-style: solid;

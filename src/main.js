@@ -1,25 +1,27 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import App from './App'
-import router from './router'
-import * as filters from './utils'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import VueClipboard from 'vue-clipboard2';
-import '@/styles/index.scss' // global scss
+import router from './router'
+import * as filters from './utils'
 import '@/permission' // permission control
 import 'babel-polyfill'
+import 'ie-placeholder'
+import 'es6-promise/auto'
 import promise from 'es6-promise'
+//swiper
+import VueAwesomeSwiper from 'vue-awesome-swiper'
+import 'swiper/dist/css/swiper.css'
+
+import VueClipboard from 'vue-clipboard2';
+import '@/styles/index.scss' // global scss
 import axios from 'axios'
 import VueKindEditor from './plugin/kindeditor.js'
 import '../static/kindeditor/kindeditor-all-min.js'
 import '../static/kindeditor/lang/zh-CN.js'
-import 'ie-placeholder'
-import 'es6-promise/auto'
-//swiper
-import VueAwesomeSwiper from 'vue-awesome-swiper'
-import 'swiper/dist/css/swiper.css'
+import App from './App'
+
 
 Vue.use(VueAwesomeSwiper, /* { default options with global component } */)
 
@@ -38,8 +40,7 @@ Object.keys(filters).forEach(key => {
 })
 
 Vue.config.productionTip = false
-// Vue.prototype.commenUrl = 'https://ystwx.yantai.gov.cn/jntestapi'
-Vue.prototype.commenUrl = 'http://154.8.201.198:8081'
+Vue.prototype.commenUrl = 'https://ystwx.yantai.gov.cn/jneduapi2'
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

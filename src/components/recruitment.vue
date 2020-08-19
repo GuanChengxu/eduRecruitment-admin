@@ -606,6 +606,11 @@
     right: 30px; */
   }
 
+  .rb-paging .el-icon:before{
+    content: '···' !important;
+    display: block !important;
+  }
+
   .btn-prev {
     background-image: url("../assets/prev.png") !important;
     background-position: center !important;

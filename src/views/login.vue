@@ -78,6 +78,7 @@
                 localStorage.setItem('name',res.data.eduUser.name);
                 localStorage.setItem('unitId',res.data.eduUser.unitId);
                 localStorage.setItem('unitName',res.data.eduUser.unitName);
+                localStorage.setItem('applyId',res.data.eduUser.applyId);
                 that.$router.replace('/index');
               } else {
                 that.$message(res.data.msg);

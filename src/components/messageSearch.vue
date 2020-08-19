@@ -61,6 +61,10 @@
           <div class="ms-listdstyle msl-operation" style="cursor: pointer;" @click="showPopup(sld)">查看详情</div>
         </div>
       </div>
+      <!-- 分页 -->
+      <div class="rb-paging" v-show="search_anything == 1">
+        <el-pagination small layout="prev, pager, next" :total="total" :current-page="pageNum" :page-size="15" @current-change='handleCurrentChange'></el-pagination>
+      </div>
       <!-- 弹窗 -->
       <div class="ms-popup" v-if="ms_popup == 1">
         <div ref="msp_detailbox" class="msp-detailbox">
@@ -298,7 +302,9 @@
         searchName: '',
         searchTotal: 0,
         picVisible:false,
-        swiperOption:{}
+        swiperOption:{},
+        total:0,
+        pageNum:1
       }
     },
     created() {
@@ -329,11 +335,33 @@
         }
       },
       showPopup(sld) {
-        this.popupData = sld;
-        this.ms_popup = 1;
-        this.$nextTick(()=>{ // 页面渲染完成后的回调
-          this.popupTop();
-        })
+        var that = this;
+        axios({
+          method:'post',
+          url:this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/detailById',
+          data: qs.stringify({teacherId:sld.teacherId}),
+          headers: {
+            token: localStorage.getItem('token')
+          }
+        }).then(function(res) {
+          if (res.status == 200) {
+            if (res.data.code == 200) {
+              that.popupData = res.data.data;
+              that.ms_popup = 1;
+              that.$nextTick(()=>{ // 页面渲染完成后的回调
+                that.popupTop();
+              })
+            } else if (res.data.code == 500) {
+              if (res.data.msg == '您的Session时效性已过，请重新登录!') {
+                that.$message(res.data.msg);
+                localStorage.removeItem('token');
+                that.$router.replace('/');
+              } else {
+                that.$message(res.data.msg);
+              }
+            }
+          }
+        });
       },
       hidePopup() {
         this.ms_popup = 0;
@@ -358,12 +386,20 @@
         var h3 = (h1 - h2) / 2;
         this.pdetail_top = h3 + 'px';
       },
+      //分页
+      handleCurrentChange(val) {
+        this.pageNum = val;
+        this.searchList();
+      },
       searchList() {
         var that = this;
+        let data = this.searchDto;
+        data.pageNum = this.pageNum;
+        data.pageSize = 15;
         axios({
           method:'post',
           url:this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/list',
-          data: qs.stringify(this.searchDto),
+          data: qs.stringify(data),
           headers: {
             token: localStorage.getItem('token')
           }
@@ -374,6 +410,7 @@
               that.searchListData = res.data.list.rows;
               that.searchName = that.searchDto.dim;
               that.searchTotal = res.data.list.total;
+              that.total = res.data.list.total;
               that.searchListData.forEach((val) => {
                 val.applyTime = that.format(val.applyTime,'yyyy-MM-dd HH:mm:ss');
               })
@@ -1129,5 +1166,54 @@
     width: 14px;
     height: 14px;
     cursor: pointer;
+  }
+  .rb-paging{
+    text-align: right;
+    margin-top: 20px;
+    margin-right: 30px;
+    margin-bottom: 10px;
+    /* position: absolute;
+    bottom: 40px;
+    right: 30px; */
+  }
+  .rb-paging .el-icon:before{
+    content: '···' !important;
+    display: block !important;
+  }
+  .btn-prev {
+    background-image: url("../assets/prev.png") !important;
+    background-position: center !important;
+    background-size: 15px 15px !important;
+    background-repeat: no-repeat !important;
+    padding-right: 6px !important;
+  }
+
+  .btn-prev i{
+    display: none !important;
+  }
+
+  .btn-next {
+    background-image: url("../assets/next.png") !important;
+    background-position: center !important;
+    background-size: 15px 15px !important;
+    background-repeat: no-repeat !important;
+    padding-left: 6px !important;
+  }
+
+  .btn-next i{
+    display: none !important;
+  }
+
+  .el-pager li{
+    width: 28px !important;
+    padding: 0 !important;
+  }
+
+  .el-pager li.active{
+    color: #3A6AEC !important;
+  }
+
+  .el-pager li:hover{
+    color: #3A6AEC !important;
   }
 </style>

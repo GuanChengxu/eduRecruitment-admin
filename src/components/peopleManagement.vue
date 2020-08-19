@@ -31,9 +31,11 @@
           <div class="pulldown-div pd-school">
             {{schoolName}}<img class="pulldown-img" src="../assets/down.png" />
           </div>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item :command="null">全部</el-dropdown-item>
-            <el-dropdown-item v-for="(sd,sdidx) in schoolData" :key="sdidx" :command="sd">{{sd.name}}</el-dropdown-item>
+          <el-dropdown-menu class="ts1" slot="dropdown">
+            <div class="scroll_box">
+              <el-dropdown-item :command="null">全部</el-dropdown-item>
+              <el-dropdown-item v-for="(sd,sdidx) in schoolData" :key="sdidx" :command="sd">{{sd.name}}</el-dropdown-item>
+            </div>
           </el-dropdown-menu>
         </el-dropdown>
         <div v-else class="pm-search-school pulldown">{{schoolName}}</div>
@@ -42,14 +44,16 @@
             <div class="hidden_name">{{postName}}</div>
             <img class="pulldown-img" src="../assets/down.png" />
           </div>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item :command="null" v-if="grade != 3 || grade != '3'">全部</el-dropdown-item>
-            <el-dropdown-item v-for="(pd,pdidx) in postData" :key="pdidx" :command="pd">{{pd.subjectName}}</el-dropdown-item>
+          <el-dropdown-menu class="ts1" slot="dropdown">
+            <div class="scroll_box">
+              <el-dropdown-item :command="null" v-if="grade != 3 || grade != '3'">全部</el-dropdown-item>
+              <el-dropdown-item v-for="(pd,pdidx) in postData" :key="pdidx" :command="pd">{{pd.subjectName}}</el-dropdown-item>
+            </div>
           </el-dropdown-menu>
         </el-dropdown>
         <input type="text" class="pm-search-name" v-model="recTeacher.name" placeholder="请输入姓名" @focus="recTeacher.name = ''" />
         <input type="text" class="pm-search-idcard" v-model="recTeacher.idNumber" placeholder="请输入身份证号" @focus="recTeacher.idNumber = ''" />
-        <button class="pm-search-button" style="cursor: pointer;" @click="getPeopleList()">确认</button>
+        <button class="pm-search-button" style="cursor: pointer;" @click="getPeopleList(1)">确认</button>
       </div>
       <div style="height: 33px;margin-top: 11px;">
         <!-- 标签 -->
@@ -105,6 +109,10 @@
         <div class="pmd-style pml-state" v-else-if="pd.isverify == 2">已通过</div>
         <div class="pmd-style pml-state" v-else-if="pd.isverify == 3">未通过</div>
         <div class="pmd-style pml-operation" style="cursor: pointer;" @click="showPopup(pd)">查看详情</div>
+      </div>
+      <!-- 分页 -->
+      <div class="rb-paging">
+        <el-pagination small layout="prev, pager, next" :current-page="pageNum" :total="total" :page-size="15" @current-change='handleCurrentChange'></el-pagination>
       </div>
       <!-- 弹窗 -->
       <div class="ms-popup" v-if="ms_popup == 1">
@@ -379,7 +387,9 @@
         grade: '0',
         sortNum: 0,
         picVisible:false,
-        swiperOption:{}
+        swiperOption:{},
+        total:0,
+        pageNum:1
       }
     },
     created() {
@@ -397,11 +407,11 @@
         loop: false
       }
     },
-    mounted() {
+    async mounted() {
       this.recTeacher.recruitId = localStorage.getItem('applyId');
       this.downListDto.applyId = localStorage.getItem('applyId');
       this.grade = localStorage.getItem('grade');
-      this.getSchoolList();
+      await this.getSchoolList();
       this.getPostList();
     },
     methods: {
@@ -442,11 +452,34 @@
         this.pdetail_top = h3 + 'px';
       },
       showPopup(pd) {
-        this.popupData = pd;
-        this.ms_popup = 1;
-        this.$nextTick(() => { // 页面渲染完成后的回调
-          this.popupTop();
-        })
+        var that = this;
+        axios({
+          method:'post',
+          url:this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/detailById',
+          data: qs.stringify({teacherId:pd.teacherId}),
+          headers: {
+            token: localStorage.getItem('token')
+          }
+        }).then(function(res) {
+          console.log(res)
+          if (res.status == 200) {
+            if (res.data.code == 200) {
+              that.popupData = res.data.data;
+              that.ms_popup = 1;
+              that.$nextTick(() => { // 页面渲染完成后的回调
+                that.popupTop();
+              })
+            } else if (res.data.code == 500) {
+              if (res.data.msg == '您的Session时效性已过，请重新登录!') {
+                that.$message(res.data.msg);
+                localStorage.removeItem('token');
+                that.$router.replace('/');
+              } else {
+                that.$message(res.data.msg);
+              }
+            }
+          }
+        });
       },
       hidePopup() {
         this.ms_popup = 0;
@@ -472,7 +505,7 @@
         } else {
           this.recTeacher.unitId = command.unitId;
           this.schoolName = command.name;
-          this.getPostList();
+          // this.getPostList();
         }
       },
       pdHandleCommand(command) {
@@ -483,6 +516,11 @@
           this.recTeacher.postId = command.jobId;
           this.postName = command.subjectName;
         }
+      },
+      //分页
+      handleCurrentChange(val) {
+        this.pageNum = val;
+        this.getPeopleList();
       },
       swichMenu: async function(current) { //点击其中一个 menu
         if (this.currentTab == current) {
@@ -499,14 +537,22 @@
         } else if (current == 3) {
           this.recTeacher.isverify = '0';
         }
-        this.getPeopleList();
+        this.getPeopleList(1);
       },
-      getPeopleList() {
+      getPeopleList(val) {
         var that = this;
+        let data = this.recTeacher;
+        if(val == 1){
+          this.pageNum = 1;
+          data.pageNum = 1;
+        }else {
+          data.pageNum = this.pageNum;
+        }
+        data.pageSize = 15;
         axios({
             method: 'post',
             url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/list',
-            data: qs.stringify(this.recTeacher),
+            data: qs.stringify(data),
             headers: {
               token: localStorage.getItem('token')
             }
@@ -521,8 +567,9 @@
                 that.willNum = res.data.ISVERIFY_VERIFIED;
                 that.uncheckedNum = res.data.ISVERIFY_CHECKPENDING;
                 that.peopleData = res.data.list.rows;
+                that.total = res.data.list.total;
                 that.peopleData.forEach((val) => {
-                  if (val.isverify != 0) {
+                  if (val.isverify != 0 && val.applyTime) {
                     val.applyTime = that.format(val.applyTime, 'yyyy-MM-dd HH:mm:ss');
                   }
                 })
@@ -541,9 +588,9 @@
             that.$message('失败');
           });
       },
-      getSchoolList() {
+      async getSchoolList() {
         var that = this;
-        axios({
+        await axios({
             method: 'post',
             url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/unitList',
             data: qs.stringify(this.downListDto),
@@ -557,8 +604,10 @@
                 if (that.grade != 2 && that.grade != 3 && that.grade != '2' && that.grade != '3') {
                   that.schoolData = res.data.data;
                 } else {
-                  that.recTeacher.unitId = res.data.data[0].unitId;
-                  that.schoolName = res.data.data[0].name;
+                  // that.recTeacher.unitId = res.data.data[0].unitId;
+                  // that.schoolName = res.data.data[0].name;
+                  that.recTeacher.unitId = localStorage.getItem('unitId');
+                  that.schoolName = localStorage.getItem('unitName');
                 }
               } else if (res.data.code == 500) {
                 if (res.data.msg == '您的Session时效性已过，请重新登录!') {
@@ -614,14 +663,14 @@
       },
       refresh() {
         var that = this;
-        that.recTeacher.unitId = '';
-        that.recTeacher.postId = '';
-        that.recTeacher.name = '';
-        that.recTeacher.idNumber = '';
-        that.recTeacher.isverify = '1';
-        that.schoolName = '全部';
-        that.postName = '全部';
-        that.currentTab = 0;
+        // that.recTeacher.unitId = '';
+        // that.recTeacher.postId = '';
+        // that.recTeacher.name = '';
+        // that.recTeacher.idNumber = '';
+        // that.recTeacher.isverify = '1';
+        // that.schoolName = '全部';
+        // that.postName = '全部';
+        // that.currentTab = 0;
         axios({
             method: 'post',
             url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/list',
@@ -638,9 +687,12 @@
                 that.scrollList[2].number = res.data.ISVERIFY_REJECT;
                 that.scrollList[3].number = res.data.ISVERIFY_UNCOMMITTED;
                 that.willNum = res.data.ISVERIFY_VERIFIED;
+                that.uncheckedNum = res.data.ISVERIFY_CHECKPENDING;
                 that.peopleData = res.data.list.rows;
                 that.peopleData.forEach((val) => {
-                  val.applyTime = that.format(val.applyTime, 'yyyy-MM-dd HH:mm:ss');
+                  if(val.applyTime){
+                    val.applyTime = that.format(val.applyTime, 'yyyy-MM-dd HH:mm:ss');
+                  }
                 })
               } else if (res.data.code == 500) {
                 if (res.data.msg == '您的Session时效性已过，请重新登录!') {
@@ -1520,5 +1572,63 @@
     width: 14px;
     height: 14px;
     cursor: pointer;
+  }
+  .ts1{
+    padding: 0px;
+  }
+  .ts1 .scroll_box{
+    max-height: 206px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 10px 0;
+  }
+  .rb-paging{
+    text-align: right;
+    margin-top: 20px;
+    margin-right: 30px;
+    margin-bottom: 10px;
+    /* position: absolute;
+    bottom: 40px;
+    right: 30px; */
+  }
+  .rb-paging .el-icon:before{
+    content: '···' !important;
+    display: block !important;
+  }
+  .btn-prev {
+    background-image: url("../assets/prev.png") !important;
+    background-position: center !important;
+    background-size: 15px 15px !important;
+    background-repeat: no-repeat !important;
+    padding-right: 6px !important;
+  }
+
+  .btn-prev i{
+    display: none !important;
+  }
+
+  .btn-next {
+    background-image: url("../assets/next.png") !important;
+    background-position: center !important;
+    background-size: 15px 15px !important;
+    background-repeat: no-repeat !important;
+    padding-left: 6px !important;
+  }
+
+  .btn-next i{
+    display: none !important;
+  }
+
+  .el-pager li{
+    width: 28px !important;
+    padding: 0 !important;
+  }
+
+  .el-pager li.active{
+    color: #3A6AEC !important;
+  }
+
+  .el-pager li:hover{
+    color: #3A6AEC !important;
   }
 </style>

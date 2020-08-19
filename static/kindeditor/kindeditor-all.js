@@ -7233,21 +7233,7 @@ KindEditor.plugin('image', function(K) {
 							return;
 						}
 						dialog.showLoading(self.lang('uploadLoading'));
-						// uploadbutton.submit();
-            var formData = new FormData();
-            var file=uploadbutton.fileBox[0].files[0];
-            formData.append(file.name, file);
-            //console.log(file,formData)
-            K.ajaxForm(self.options.uploadJson, function(data) {
-                dialog.hideLoading();
-              //console.log(data);
-              if (data.error==0) {
-                //console.log(self.options);
-                var html = '<img src="' + self.options.basePath + data.url + '" />';
-                //console.log(html)
-                self.appendHtml(html).hideDialog().focus();
-              }
-            },'POST',formData,'json');
+						uploadbutton.submit();
 						localUrlBox.val('');
 						return;
 					}
