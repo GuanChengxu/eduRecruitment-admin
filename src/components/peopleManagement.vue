@@ -73,43 +73,56 @@
           <button class="svb-button svb-export" v-if="grade != 2 && grade != 3 && grade != '2' && grade != '3'" style="cursor: pointer;" @click="showExport()">统计导出</button>
         </div>
       </div>
-      <!-- 列表标题 -->
-      <div class="pm-listtitle">
-        <div class="pml-style pml-number">序号</div>
-        <div class="pml-style pml-name xiaoshou" @click="paixu('name')">姓名<img src="../assets/sort.png" /></div>
-        <div class="pml-style pml-photo">照片</div>
-        <div class="pml-style pml-sex xiaoshou" @click="paixu('sex')">性别<img src="../assets/sort.png" /></div>
-        <div class="pml-style pml-idcard xiaoshou" @click="paixu('idNumber')">身份证号<img src="../assets/sort.png" /></div>
-        <div class="pml-style pml-phone xiaoshou" @click="paixu('mobile')">电话<img src="../assets/sort.png" /></div>
-        <div class="pml-style pml-post xiaoshou" @click="paixu('unit')">报考岗位<img src="../assets/sort.png" /></div>
-        <div class="pml-style pml-edu xiaoshou" @click="paixu('highEducation')">最高学历/毕业院校/专业<img src="../assets/sort.png" /></div>
-        <div class="pml-style pml-date xiaoshou" @click="paixu('applyTime')">提交时间<img src="../assets/sort.png" /></div>
-        <div class="pml-style pml-state xiaoshou" @click="paixu('isverify')">状态<img src="../assets/sort.png" /></div>
-        <div class="pml-style pml-operation">操作</div>
-      </div>
-      <!-- 列表 -->
-      <div class="pm-listdetail" v-for="(pd,pdidx) in peopleData" :key="pdidx">
-        <div class="pmd-style pml-number">{{pdidx + 1}}</div>
-        <div class="pmd-style pml-name">{{pd.name}}</div>
-        <div class="pmd-style pml-photo">
-          <img :src="commenUrl+'' + pd.photo" />
+      <div class="pm-listTable">
+        <!-- 列表标题 -->
+        <div class="pm-listtitle">
+          <div class="pml-style pml-number">序号</div>
+          <div class="pml-style pml-name xiaoshou" @click="paixu('name')">姓名<img src="../assets/sort.png" /></div>
+          <div class="pml-style pml-photo">照片</div>
+          <div class="pml-style pml-sex xiaoshou" @click="paixu('sex')">性别<img src="../assets/sort.png" /></div>
+          <div class="pml-style pml-idcard xiaoshou" @click="paixu('idNumber')">身份证号<img src="../assets/sort.png" /></div>
+          <div class="pml-style pml-phone xiaoshou" @click="paixu('mobile')">电话<img src="../assets/sort.png" /></div>
+          <div class="pml-style pml-school xiaoshou" @click="paixu('unit')">报考学校<img src="../assets/sort.png" /></div>
+          <div class="pml-style pml-post xiaoshou" @click="paixu('subject')">报考岗位<img src="../assets/sort.png" /></div>
+          <div class="pml-style pml-edu xiaoshou" @click="paixu('highEducation')">最高学历<img src="../assets/sort.png" /></div>
+          <div class="pml-style pml-edu2 xiaoshou" @click="paixu('doctorAcademy')">毕业院校<img src="../assets/sort.png" /></div>
+          <div class="pml-style pml-edu2 xiaoshou" @click="paixu('doctorSpecialty')">专业<img src="../assets/sort.png" /></div>
+          <div class="pml-style pml-date xiaoshou" @click="paixu('applyTime')">提交时间<img src="../assets/sort.png" /></div>
+          <div class="pml-style pml-state xiaoshou" @click="paixu('isverify')">状态<img src="../assets/sort.png" /></div>
+          <div class="pml-style pml-operation">操作</div>
         </div>
-        <div class="pmd-style pml-sex" v-if="pd.sex == 0">男</div>
-        <div class="pmd-style pml-sex" v-else-if="pd.sex == 1">女</div>
-        <div class="pmd-style pml-sex" v-else-if="pd.sex == 2">未知</div>
-        <div class="pmd-style pml-idcard">{{pd.idNumber}}</div>
-        <div class="pmd-style pml-phone">{{pd.mobile}}</div>
-        <div class="pmd-style pml-post">{{pd.unit}}/{{pd.subject}}</div>
-        <div class="pmd-style pml-edu" v-if="pd.certificationInfo.doctorAcademy != null">{{pd.certificationInfo.highestEducation}}/{{pd.certificationInfo.doctorAcademy}}/{{pd.certificationInfo.doctorSpecialty}}</div>
-        <div class="pmd-style pml-edu" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy != null">{{pd.certificationInfo.highestEducation}}/{{pd.certificationInfo.masterAcademy}}/{{pd.certificationInfo.masterSpecialty}}</div>
-        <div class="pmd-style pml-edu" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy != null">{{pd.certificationInfo.highestEducation}}/{{pd.certificationInfo.bachelorAcademy}}/{{pd.certificationInfo.bachelorSpecialty}}</div>
-        <div class="pmd-style pml-edu" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy == null && pd.certificationInfo.specialtiesAcademy != null">{{pd.certificationInfo.highestEducation}}/{{pd.certificationInfo.specialtiesAcademy}}/{{pd.certificationInfo.specialtiesSpecialty}}</div>
-        <div class="pmd-style pml-date">{{pd.applyTime}}</div>
-        <div class="pmd-style pml-state" v-if="pd.isverify == 0">已保存未提交</div>
-        <div class="pmd-style pml-state" v-else-if="pd.isverify == 1">待审核</div>
-        <div class="pmd-style pml-state" v-else-if="pd.isverify == 2">已通过</div>
-        <div class="pmd-style pml-state" v-else-if="pd.isverify == 3">未通过</div>
-        <div class="pmd-style pml-operation" style="cursor: pointer;" @click="showPopup(pd)">查看详情</div>
+        <!-- 列表 -->
+        <div class="pm-listdetail" v-for="(pd,pdidx) in peopleData" :key="pdidx">
+          <div class="pmd-style pml-number">{{pdidx + ((pageNum - 1) * 15) + 1}}</div>
+          <div class="pmd-style pml-name" style="cursor: pointer;" @click="showPopup(pd)">{{pd.name}}</div>
+          <div class="pmd-style pml-photo">
+            <img :src="commenUrl+'' + pd.photo" />
+          </div>
+          <div class="pmd-style pml-sex" v-if="pd.sex == 0">男</div>
+          <div class="pmd-style pml-sex" v-else-if="pd.sex == 1">女</div>
+          <div class="pmd-style pml-sex" v-else-if="pd.sex == 2">未知</div>
+          <div class="pmd-style pml-idcard">{{pd.idNumber}}</div>
+          <div class="pmd-style pml-phone">{{pd.mobile}}</div>
+          <div class="pmd-style pml-school">{{pd.unit}}</div>
+          <div class="pmd-style pml-post">{{pd.subject}}</div>
+<!--          <div class="pmd-style pml-edu">{{pd.certificationInfo.highestEducation}}</div>-->
+<!--          <div class="pmd-style pml-edu2" v-if="pd.certificationInfo.doctorAcademy != null">{{pd.certificationInfo.doctorAcademy}}</div>-->
+<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy != null">{{pd.certificationInfo.masterAcademy}}</div>-->
+<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy != null">{{pd.certificationInfo.bachelorAcademy}}</div>-->
+<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy == null && pd.certificationInfo.specialtiesAcademy != null">{{pd.certificationInfo.specialtiesAcademy}}</div>-->
+
+<!--          <div class="pmd-style pml-edu2" v-if="pd.certificationInfo.doctorAcademy != null">{{pd.certificationInfo.doctorSpecialty}}</div>-->
+<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy != null">{{pd.certificationInfo.masterSpecialty}}</div>-->
+<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy != null">{{pd.certificationInfo.bachelorSpecialty}}</div>-->
+<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy == null && pd.certificationInfo.specialtiesAcademy != null">{{pd.certificationInfo.specialtiesSpecialty}}</div>-->
+
+          <div class="pmd-style pml-date">{{pd.applyTime}}</div>
+          <div class="pmd-style pml-state" v-if="pd.isverify == 0">已保存未提交</div>
+          <div class="pmd-style pml-state" v-else-if="pd.isverify == 1">待审核</div>
+          <div class="pmd-style pml-state" v-else-if="pd.isverify == 2">已通过</div>
+          <div class="pmd-style pml-state" v-else-if="pd.isverify == 3">未通过</div>
+          <div class="pmd-style pml-operation" style="cursor: pointer;" @click="showPopup(pd)">查看详情</div>
+        </div>
       </div>
       <!-- 分页 -->
       <div class="rb-paging">
@@ -295,7 +308,7 @@
           </div>
           <!-- 拒绝 -->
           <div class="mspd-buttonbox" v-else-if="popupData.isverify == '3'">
-            <button class="mspd-buttonstyle mspd-pass tgorjj" style="cursor: pointer;" @click="auditPass(popupData.teacherId)">通过</button>
+            <button class="mspd-buttonstyle mspd-pass tgorjj" style="cursor: pointer;margin-left: calc((100% - 85px - 85px - 85px - 38px - 38px) / 2);" @click="auditPass(popupData.teacherId)">通过</button>
             <button class="mspd-buttonstyle mspd-export tgorjj" style="cursor: pointer;" @click="exportPDF(popupData.teacherId)">导出</button>
           </div>
           <!-- 审核拒绝弹窗 -->
@@ -398,6 +411,7 @@
         reject_popup: 0,
         grade: '0',
         sortNum: 0,
+        sortName:'',
         picVisible:false,
         swiperOption:{},
         total:0,
@@ -432,9 +446,9 @@
     },
     methods: {
       paixu(val) {
-        if (this.sortNum == 0) {
+        if (this.sortNum == 0 || this.sortName != val) {
           this.sortNum = 1;
-          if (val == 'name' || val == 'unit' || val == 'highEducation') {
+          if (val == 'name' || val == 'unit' || val == 'subject' || val == 'highEducation' || val == 'doctorAcademy' || val == 'doctorSpecialty') {
             this.zhongwenpaixu(this.peopleData, val);
           } else {
             this.shuzipaixu(this.peopleData, val);
@@ -443,6 +457,7 @@
           this.sortNum = 0;
           this.reverse();
         }
+        this.sortName = val;
       },
       shuzipaixu(array, key) {
         return array.sort(function(a, b) {
@@ -455,6 +470,48 @@
         return array.sort(function(a, b) {
           var x = a[key];
           var y = b[key];
+          if(key == 'highEducation'){
+            x = a['certificationInfo']['highestEducation']
+            y = b['certificationInfo']['highestEducation']
+          }else if(key == 'doctorAcademy'){
+            if(a.certificationInfo.doctorAcademy != null){
+              x = a['certificationInfo']['doctorAcademy']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy != null){
+              x = a['certificationInfo']['masterAcademy']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy != null){
+              x = a['certificationInfo']['bachelorAcademy']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy == null && a.certificationInfo.specialtiesAcademy != null){
+              x = a['certificationInfo']['specialtiesAcademy']
+            }
+            if(b.certificationInfo.doctorAcademy != null){
+              y = b['certificationInfo']['doctorAcademy']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy != null){
+              y = b['certificationInfo']['masterAcademy']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy != null){
+              y = b['certificationInfo']['bachelorAcademy']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy == null && b.certificationInfo.specialtiesAcademy != null){
+              y = b['certificationInfo']['specialtiesAcademy']
+            }
+          }else if(key == 'doctorSpecialty'){
+            if(a.certificationInfo.doctorAcademy != null){
+              x = a['certificationInfo']['doctorSpecialty']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy != null){
+              x = a['certificationInfo']['masterSpecialty']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy != null){
+              x = a['certificationInfo']['bachelorSpecialty']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy == null && a.certificationInfo.specialtiesAcademy != null){
+              x = a['certificationInfo']['specialtiesSpecialty']
+            }
+            if(b.certificationInfo.doctorAcademy != null){
+              y = b['certificationInfo']['doctorSpecialty']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy != null){
+              y = b['certificationInfo']['masterSpecialty']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy != null){
+              y = b['certificationInfo']['bachelorSpecialty']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy == null && b.certificationInfo.specialtiesAcademy != null){
+              y = b['certificationInfo']['specialtiesSpecialty']
+            }
+          }
           return x.localeCompare(y)
         })
       },
@@ -741,7 +798,6 @@
             },
           })
             .then(function(res) {
-              console.log(res)
               if (res.status == 200) {
                 if (res.data.code == 200) {
                   var rdm = res.data.msg;
@@ -767,35 +823,36 @@
         }
       },
       doExport() {
-        const that = this;
-        axios({
-            method: 'post',
-            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/export',
-            data: qs.stringify(this.recTeacher),
-            headers: {
-              token: localStorage.getItem('token')
-            },
-          })
-          .then(function(res) {
-            if (res.status == 200) {
-              if (res.data.code == 200) {
-                var rdm = encodeURI(res.data.msg);
-                var url = that.commenUrl+'/edu/common/download?fileName=' + rdm + '&delete=true';
-                window.open(url, 'top');
-              } else if (res.data.code == 500) {
-                if (res.data.msg == '您的Session时效性已过，请重新登录!') {
-                  that.$message(res.data.msg);
-                  localStorage.removeItem('token');
-                  that.$router.replace('/');
-                } else {
-                  that.$message(res.data.msg);
-                }
-              }
-            }
-          })
-          .catch(function() {
-            that.$message('失败');
-          });
+        window.location.href = this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/exportDto?recruitId=' + this.recTeacher.recruitId + '&unitId='+this.recTeacher.unitId+'&postId='+this.recTeacher.postId+'&name='+this.recTeacher.name+'&idNumber='+this.recTeacher.idNumber+'&isverify='+this.recTeacher.isverify;
+        // const that = this;
+        // axios({
+        //     method: 'post',
+        //     url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/export',
+        //     data: qs.stringify(this.recTeacher),
+        //     headers: {
+        //       token: localStorage.getItem('token')
+        //     },
+        //   })
+        //   .then(function(res) {
+        //     if (res.status == 200) {
+        //       if (res.data.code == 200) {
+        //         var rdm = encodeURI(res.data.msg);
+        //         var url = that.commenUrl+'/edu/common/download?fileName=' + rdm + '&delete=true';
+        //         window.open(url, 'top');
+        //       } else if (res.data.code == 500) {
+        //         if (res.data.msg == '您的Session时效性已过，请重新登录!') {
+        //           that.$message(res.data.msg);
+        //           localStorage.removeItem('token');
+        //           that.$router.replace('/');
+        //         } else {
+        //           that.$message(res.data.msg);
+        //         }
+        //       }
+        //     }
+        //   })
+        //   .catch(function() {
+        //     that.$message('失败');
+        //   });
       },
       auditPass(id) {
         var that = this;
@@ -1137,8 +1194,14 @@
     float: right;
   }
 
+  .pm-listTable{
+    width: 100%;
+    overflow-x: auto;
+  }
+
   .pm-listtitle {
     width: calc(100% - 32px);
+    min-width: 1375px;
     height: 28px;
     margin-top: 6px;
     margin-left: 16px;
@@ -1155,7 +1218,7 @@
   }
 
   .pml-number {
-    width: 5.88%;
+    width: 4.88%;
   }
 
   .pml-name {
@@ -1163,7 +1226,7 @@
   }
 
   .pml-photo {
-    width: 7.27%;
+    width: 4.27%;
   }
 
   .pml-sex {
@@ -1178,24 +1241,32 @@
     width: 7.96%;
   }
 
+  .pml-school{
+    width: 8.48%;
+  }
+
   .pml-post {
-    width: 16.96%;
+    width: 8.48%;
   }
 
   .pml-edu {
-    width: 14.89%;
+    width: 4.96%;
+  }
+
+  .pml-edu2{
+    width: 9.12%;
   }
 
   .pml-date {
-    width: 11.86%;
+    width: 10.5%;
   }
 
   .pml-state {
-    width: 7.44%;
+    width: 6.44%;
   }
 
   .pml-operation {
-    width: 8.45%;
+    width: 6.45%;
   }
 
   .xiaoshou img {
@@ -1214,6 +1285,7 @@
 
   .pm-listdetail {
     width: calc(100% - 32px);
+    min-width: 1375px;
     height: 46px;
     margin-left: 16px;
     background: #FFFFFF;
@@ -1222,6 +1294,7 @@
   }
 
   .pmd-style {
+    box-sizing: border-box;
     height: 46px;
     line-height: 46px;
     text-align: center;
@@ -1232,6 +1305,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding: 0 3px;
   }
 
   .ms-popup {

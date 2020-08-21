@@ -48,7 +48,7 @@
         </div>
         <!-- 列表详情 -->
         <div class="ms-listdetail" v-for="(sld,sldidx) in searchListData" :key="sldidx">
-          <div class="ms-listdstyle msl-number">{{sldidx + 1}}</div>
+          <div class="ms-listdstyle msl-number">{{sldidx + ((pageNum - 1) * 15) + 1}}</div>
           <div class="ms-listdstyle msl-theme" style="cursor: pointer;" @click="showPopup(sld)">{{sld.recruitTheme}}</div>
           <div class="ms-listdstyle msl-name">{{sld.name}}</div>
           <div class="ms-listdstyle msl-sex" v-if="sld.sex == 0">男</div>
@@ -207,8 +207,8 @@
             </div>
             <div class="zmcl">
               <div class="zmcl_tle">证明材料</div>
-              <div class="zmcl_pic clearfix">
-                <img @click="showVisible(index)" v-for="(item,index) in popupData.credentials" :key="index" class="fl" :src="commenUrl+''+item.url" alt="">
+              <div class="zmcl_pic clearfix" v-viewer.rebuild="{movable: true}">
+                <img v-for="(item,index) in popupData.credentials" :key="index" class="fl" :src="commenUrl+''+item.url" alt="">
               </div>
             </div>
             <div style="width: calc(100% - 42px);height: 1px;background: #D7D7D7;margin: 5px 21px;"></div>
@@ -245,7 +245,7 @@
           </div>
           <!-- 拒绝 -->
           <div class="mspd-buttonbox" v-else-if="popupData.isverify == '3'">
-            <button class="mspd-buttonstyle mspd-pass tgorjj" style="cursor: pointer;" @click="auditPass(popupData.teacherId)">通过</button>
+            <button class="mspd-buttonstyle mspd-pass tgorjj" style="cursor: pointer;margin-left: calc((100% - 85px - 85px - 85px - 38px - 38px) / 2);" @click="auditPass(popupData.teacherId)">通过</button>
             <button class="mspd-buttonstyle mspd-export tgorjj" style="cursor: pointer;" @click="exportPDF(popupData.teacherId)">导出</button>
           </div>
           <!-- 审核拒绝弹窗 -->
@@ -368,7 +368,6 @@
       },
       showVisible(num){
         this.picVisible = true;
-        this.$refs.myswiper.swiper.slideTo(num,0);
       },
       hideVisible(){
         this.picVisible = false;
@@ -749,11 +748,11 @@
   }
 
   .msl-name {
-    width: 8.9%;
+    width: 7.9%;
   }
 
   .msl-sex {
-    width: 2.33%;
+    width: 3.33%;
   }
 
   .msl-idcard {
@@ -973,17 +972,17 @@
   /*  margin-left: 97px;*/
   /*}*/
 
-  .mspd-pass {
-    background: #436EF3;
-    border: 1px solid #436EF3; /* no */
-    margin-left: 38px;
-  }
+  /*.mspd-pass {*/
+  /*  background: #436EF3;*/
+  /*  border: 1px solid #436EF3; !* no *!*/
+  /*  margin-left: calc((100% - 85px - 85px - 85px - 38px - 38px) / 2);*/
+  /*}*/
 
-  .mspd-export {
-    background: #02A21C;
-    border: 1px solid #436EF3; /* no */
-    margin-left: 38px;
-  }
+  /*.mspd-export {*/
+  /*  background: #02A21C;*/
+  /*  border: 1px solid #436EF3; !* no *!*/
+  /*  margin-left: 38px;*/
+  /*}*/
 
   .mspd-rejectmemark {
     width: 339px;
