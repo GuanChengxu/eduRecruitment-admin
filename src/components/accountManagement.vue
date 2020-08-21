@@ -623,7 +623,6 @@
       },
       addUser(keyVal) {
         var that = this;
-        console.log(/^(?=.*[a-z])(?=.*[A-Z])[^]{8,16}$/g.test(keyVal.password))
         if (that.addDto.name == '' || that.addDto.name == null || keyVal.name.replace(/\s*/g, "") == "") {
           that.$message('请输入账号');
         } else if (that.addDto.password == '' || that.addDto.password == null || keyVal.password.replace(/\s*/g, "") == "") {

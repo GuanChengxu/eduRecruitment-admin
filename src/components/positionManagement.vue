@@ -701,7 +701,6 @@
             },
           })
           .then(function(res) {
-            console.log(res)
             if (res.status == 200) {
               if (res.data.code == 200) {
                 var rdm = encodeURI(res.data.msg);

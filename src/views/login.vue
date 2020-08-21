@@ -69,7 +69,6 @@
             data: qs.stringify(that.data),
           })
           .then(function(res) {
-            console.log(res)
             if (res.status == 200) {
               if (res.data.code == 200) {
                 that.$message('登录成功');

@@ -14,6 +14,9 @@ import promise from 'es6-promise'
 import VueAwesomeSwiper from 'vue-awesome-swiper'
 import 'swiper/dist/css/swiper.css'
 
+import 'viewerjs/dist/viewer.css'
+import Viewer from 'v-viewer'
+
 import VueClipboard from 'vue-clipboard2';
 import '@/styles/index.scss' // global scss
 import axios from 'axios'
@@ -33,6 +36,7 @@ promise.polyfill()
 Vue.use(ElementUI)
 Vue.use(VueClipboard)
 Vue.use(VueKindEditor)
+Vue.use(Viewer)
 
 // 注册全局过滤器
 Object.keys(filters).forEach(key => {

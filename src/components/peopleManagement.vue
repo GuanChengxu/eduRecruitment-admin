@@ -68,8 +68,9 @@
         </div>
         <!-- 导出刷新按钮 -->
         <div class="sv-button">
-          <button class="svb-button svb-derive" style="cursor: pointer;" @click="doExport()">导出</button>
           <button class="svb-button svb-refresh" style="cursor: pointer;" @click="refresh()">刷新</button>
+          <button class="svb-button svb-derive" style="cursor: pointer;" @click="doExport()">导出</button>
+          <button class="svb-button svb-export" v-if="grade != 2 && grade != 3 && grade != '2' && grade != '3'" style="cursor: pointer;" @click="showExport()">统计导出</button>
         </div>
       </div>
       <!-- 列表标题 -->
@@ -256,8 +257,8 @@
             </div>
             <div class="zmcl">
               <div class="zmcl_tle">证明材料</div>
-              <div class="zmcl_pic clearfix">
-                <img @click="showVisible(index)" v-for="(item,index) in popupData.credentials" :key="index" class="fl" :src="commenUrl+''+item.url" alt="">
+              <div class="zmcl_pic clearfix" v-viewer.rebuild="{movable: true}">
+                <img v-for="(item,index) in popupData.credentials" :key="index" class="fl" :src="commenUrl+''+item.url" alt="">
               </div>
             </div>
             <div style="width: calc(100% - 42px);height: 1px;background: #D7D7D7;margin: 5px 21px;"></div>
@@ -308,28 +309,39 @@
           </div>
         </div>
       </div>
+      <el-dialog
+        title="选择时间"
+        :visible.sync="exportVisible"
+        class="ts2"
+        width="30%">
+          <div class="close clearfix">
+            <p class="fl">请选择导出统计的结束时间</p>
+            <img @click="exportVisible = false" src="../assets/close.png" alt="">
+          </div>
+          <div class="time clearfix">
+            <div class="label fl">结束时间:</div>
+            <el-date-picker
+              class="fl"
+              v-model="peoTime"
+              type="datetime"
+              format="yyyy-MM-dd HH:mm:ss"
+              placeholder="选择日期时间">
+            </el-date-picker>
+          </div>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="exportVisible = false">取 消</el-button>
+            <el-button type="primary" @click="peoExport()">导 出</el-button>
+          </span>
+      </el-dialog>
+
     </div>
-    <el-dialog class="ts" :visible.sync="picVisible">
-      <div class="close" @click="hideVisible">
-        <img src="../assets/tcclose.png" alt="">
-      </div>
-      <div class="swiper_box">
-        <swiper :options="swiperOption" ref="myswiper">
-          <swiper-slide class="swiper-slide" v-for="(item,index) in popupData.credentials" :key="index">
-            <img :src="commenUrl+''+item.url"/>
-          </swiper-slide>
-        </swiper>
-        <!-- 左右箭头 -->
-        <div class="swiper-button-prev" slot="button-prev"></div>
-        <div class="swiper-button-next" slot="button-next"></div>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
   import qs from 'qs'
   const axios = require('axios');
+
   export default {
     data() {
       return {
@@ -389,7 +401,11 @@
         picVisible:false,
         swiperOption:{},
         total:0,
-        pageNum:1
+        pageNum:1,
+        //导出
+        exportVisible:false,
+        //导出时间
+        peoTime:''
       }
     },
     created() {
@@ -412,7 +428,7 @@
       this.downListDto.applyId = localStorage.getItem('applyId');
       this.grade = localStorage.getItem('grade');
       await this.getSchoolList();
-      this.getPostList();
+      this.getPostList(1);
     },
     methods: {
       paixu(val) {
@@ -461,7 +477,6 @@
             token: localStorage.getItem('token')
           }
         }).then(function(res) {
-          console.log(res)
           if (res.status == 200) {
             if (res.data.code == 200) {
               that.popupData = res.data.data;
@@ -484,10 +499,6 @@
       hidePopup() {
         this.ms_popup = 0;
       },
-      showVisible(num){
-        this.picVisible = true;
-        this.$refs.myswiper.swiper.slideTo(num,0);
-      },
       hideVisible(){
         this.picVisible = false;
       },
@@ -505,8 +516,8 @@
         } else {
           this.recTeacher.unitId = command.unitId;
           this.schoolName = command.name;
-          // this.getPostList();
         }
+        this.getPostList();
       },
       pdHandleCommand(command) {
         if (command == null) {
@@ -624,7 +635,7 @@
             that.$message('失败');
           });
       },
-      getPostList() {
+      getPostList(val) {
         var that = this;
         axios({
             method: 'post',
@@ -645,7 +656,9 @@
                   that.recTeacher.postId = '';
                   that.postName = '全部';
                 }
-                that.getPeopleList();
+                if(val == 1){
+                  that.getPeopleList();
+                }
               } else if (res.data.code == 500) {
                 if (res.data.msg == '您的Session时效性已过，请重新登录!') {
                   that.$message(res.data.msg);
@@ -708,6 +721,50 @@
           .catch(function() {
             that.$message('失败');
           });
+      },
+      showExport(){
+        this.peoTime = '';
+        this.exportVisible = true;
+      },
+      peoExport() {
+        const that = this;
+        if(this.peoTime){
+          axios({
+            method: 'post',
+            url: this.commenUrl+'/edu/eduRear/eduApplySet/exportSize',
+            data: qs.stringify({
+              applyId:this.recTeacher.recruitId,
+              date:new Date(this.peoTime).getTime()
+            }),
+            headers: {
+              token: localStorage.getItem('token')
+            },
+          })
+            .then(function(res) {
+              console.log(res)
+              if (res.status == 200) {
+                if (res.data.code == 200) {
+                  var rdm = res.data.msg;
+                  var url = that.commenUrl+'/edu/common/download?fileName=' + rdm + '&delete=true';
+                  window.open(url, 'top');
+                  that.exportVisible = false;
+                } else if (res.data.code == 500) {
+                  if (res.data.msg == '您的Session时效性已过，请重新登录!') {
+                    that.$message(res.data.msg);
+                    localStorage.removeItem('token');
+                    that.$router.replace('/');
+                  } else {
+                    that.$message(res.data.msg);
+                  }
+                }
+              }
+            })
+            .catch(function() {
+              that.$message('失败');
+            });
+        }else{
+          that.$message('请选择结束时间');
+        }
       },
       doExport() {
         const that = this;
@@ -850,7 +907,7 @@
               break;
           }
         })
-      }
+      },
     }
   }
 </script>
@@ -1047,7 +1104,7 @@
   }
 
   .sv-button {
-    width: 140px;
+    width: 300px;
     height: 33px;
     float: right;
     margin-right: 16px;
@@ -1065,13 +1122,18 @@
     font-weight: 400;
     border-radius: 11px;
     margin-top: 6px;
+    margin-left: 20px;
   }
 
   .svb-derive {
-    float: left;
+    float: right;
   }
 
   .svb-refresh {
+    float: right;
+  }
+
+  .svb-export{
     float: right;
   }
 
@@ -1564,9 +1626,23 @@
   .swiper-button-next:after{
     display: none;
   }
+  .swiper_box{
+    position: relative;
+    overflow: hidden;
+  }
+  .tool{
+    padding: 10px;
+  }
+  .tool .rotate{
+    width: 32px !important;
+    height: 32px !important;
+    cursor: pointer;
+  }
   .close{
+    position: relative;
     padding: 10px 20px;
     text-align: right;
+    z-index: 9;
   }
   .close img{
     width: 14px;
@@ -1630,5 +1706,26 @@
 
   .el-pager li:hover{
     color: #3A6AEC !important;
+  }
+  .rotate1{
+    transform:rotate(90deg);
+    -ms-transform:rotate(90deg); 	/* IE 9 */
+    -moz-transform:rotate(90deg); 	/* Firefox */
+    -webkit-transform:rotate(90deg); /* Safari 和 Chrome */
+    -o-transform:rotate(90deg); 	/* Opera */
+  }
+  .rotate2{
+    transform:rotate(180deg);
+    -ms-transform:rotate(180deg);	/* IE 9 */
+    -moz-transform:rotate(180deg); 	/* Firefox */
+    -webkit-transform:rotate(180deg); /* Safari 和 Chrome */
+    -o-transform:rotate(180deg); 	/* Opera */
+  }
+  .rotate3{
+    transform:rotate(270deg);
+    -ms-transform:rotate(270deg); 	/* IE 9 */
+    -moz-transform:rotate(270deg); 	/* Firefox */
+    -webkit-transform:rotate(270deg); /* Safari 和 Chrome */
+    -o-transform:rotate(270deg); 	/* Opera */
   }
 </style>
