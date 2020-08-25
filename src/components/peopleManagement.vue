@@ -105,16 +105,16 @@
           <div class="pmd-style pml-phone">{{pd.mobile}}</div>
           <div class="pmd-style pml-school">{{pd.unit}}</div>
           <div class="pmd-style pml-post">{{pd.subject}}</div>
-<!--          <div class="pmd-style pml-edu">{{pd.certificationInfo.highestEducation}}</div>-->
-<!--          <div class="pmd-style pml-edu2" v-if="pd.certificationInfo.doctorAcademy != null">{{pd.certificationInfo.doctorAcademy}}</div>-->
-<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy != null">{{pd.certificationInfo.masterAcademy}}</div>-->
-<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy != null">{{pd.certificationInfo.bachelorAcademy}}</div>-->
-<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy == null && pd.certificationInfo.specialtiesAcademy != null">{{pd.certificationInfo.specialtiesAcademy}}</div>-->
+          <div class="pmd-style pml-edu">{{pd.certificationInfo.highestEducation}}</div>
+          <div class="pmd-style pml-edu2" v-if="pd.certificationInfo.doctorAcademy != null">{{pd.certificationInfo.doctorAcademy}}</div>
+          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy != null">{{pd.certificationInfo.masterAcademy}}</div>
+          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy != null">{{pd.certificationInfo.bachelorAcademy}}</div>
+          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy == null && pd.certificationInfo.specialtiesAcademy != null">{{pd.certificationInfo.specialtiesAcademy}}</div>
 
-<!--          <div class="pmd-style pml-edu2" v-if="pd.certificationInfo.doctorAcademy != null">{{pd.certificationInfo.doctorSpecialty}}</div>-->
-<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy != null">{{pd.certificationInfo.masterSpecialty}}</div>-->
-<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy != null">{{pd.certificationInfo.bachelorSpecialty}}</div>-->
-<!--          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy == null && pd.certificationInfo.specialtiesAcademy != null">{{pd.certificationInfo.specialtiesSpecialty}}</div>-->
+          <div class="pmd-style pml-edu2" v-if="pd.certificationInfo.doctorAcademy != null">{{pd.certificationInfo.doctorSpecialty}}</div>
+          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy != null">{{pd.certificationInfo.masterSpecialty}}</div>
+          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy != null">{{pd.certificationInfo.bachelorSpecialty}}</div>
+          <div class="pmd-style pml-edu2" v-else-if="pd.certificationInfo.doctorAcademy == null && pd.certificationInfo.masterAcademy == null && pd.certificationInfo.bachelorAcademy == null && pd.certificationInfo.specialtiesAcademy != null">{{pd.certificationInfo.specialtiesSpecialty}}</div>
 
           <div class="pmd-style pml-date">{{pd.applyTime}}</div>
           <div class="pmd-style pml-state" v-if="pd.isverify == 0">已保存未提交</div>
@@ -455,7 +455,12 @@
           }
         } else if (this.sortNum == 1) {
           this.sortNum = 0;
-          this.reverse();
+          // this.reverse();
+          if (val == 'name' || val == 'unit' || val == 'subject' || val == 'highEducation' || val == 'doctorAcademy' || val == 'doctorSpecialty') {
+            this.zhongwenpaixu1(this.peopleData, val);
+          } else {
+            this.shuzipaixu1(this.peopleData, val);
+          }
         }
         this.sortName = val;
       },
@@ -464,6 +469,13 @@
           var x = a[key];
           var y = b[key];
           return ((x < y) ? -1 : (x > y) ? 1 : 0)
+        })
+      },
+      shuzipaixu1(array, key) {
+        return array.sort(function(a, b) {
+          var x = a[key];
+          var y = b[key];
+          return ((x > y) ? -1 : (x < y) ? 1 : 0)
         })
       },
       zhongwenpaixu(array, key) {
@@ -513,6 +525,55 @@
             }
           }
           return x.localeCompare(y)
+        })
+      },
+      zhongwenpaixu1(array, key) {
+        return array.sort(function(a, b) {
+          var x = a[key];
+          var y = b[key];
+          if(key == 'highEducation'){
+            x = a['certificationInfo']['highestEducation']
+            y = b['certificationInfo']['highestEducation']
+          }else if(key == 'doctorAcademy'){
+            if(a.certificationInfo.doctorAcademy != null){
+              x = a['certificationInfo']['doctorAcademy']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy != null){
+              x = a['certificationInfo']['masterAcademy']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy != null){
+              x = a['certificationInfo']['bachelorAcademy']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy == null && a.certificationInfo.specialtiesAcademy != null){
+              x = a['certificationInfo']['specialtiesAcademy']
+            }
+            if(b.certificationInfo.doctorAcademy != null){
+              y = b['certificationInfo']['doctorAcademy']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy != null){
+              y = b['certificationInfo']['masterAcademy']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy != null){
+              y = b['certificationInfo']['bachelorAcademy']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy == null && b.certificationInfo.specialtiesAcademy != null){
+              y = b['certificationInfo']['specialtiesAcademy']
+            }
+          }else if(key == 'doctorSpecialty'){
+            if(a.certificationInfo.doctorAcademy != null){
+              x = a['certificationInfo']['doctorSpecialty']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy != null){
+              x = a['certificationInfo']['masterSpecialty']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy != null){
+              x = a['certificationInfo']['bachelorSpecialty']
+            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy == null && a.certificationInfo.specialtiesAcademy != null){
+              x = a['certificationInfo']['specialtiesSpecialty']
+            }
+            if(b.certificationInfo.doctorAcademy != null){
+              y = b['certificationInfo']['doctorSpecialty']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy != null){
+              y = b['certificationInfo']['masterSpecialty']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy != null){
+              y = b['certificationInfo']['bachelorSpecialty']
+            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy == null && b.certificationInfo.specialtiesAcademy != null){
+              y = b['certificationInfo']['specialtiesSpecialty']
+            }
+          }
+          return y.localeCompare(x)
         })
       },
       reverse() {
@@ -588,7 +649,7 @@
       //分页
       handleCurrentChange(val) {
         this.pageNum = val;
-        this.getPeopleList();
+        this.getPeopleList(2);
       },
       swichMenu: async function(current) { //点击其中一个 menu
         if (this.currentTab == current) {
@@ -641,6 +702,14 @@
                     val.applyTime = that.format(val.applyTime, 'yyyy-MM-dd HH:mm:ss');
                   }
                 })
+                if(val && val == 2){
+                  if(that.sortNum == 0){
+                    that.sortNum = 1;
+                  }else if(that.sortNum == 1){
+                    that.sortNum = 0;
+                  }
+                  that.paixu(that.sortName)
+                }
               } else if (res.data.code == 500) {
                 if (res.data.msg == '您的Session时效性已过，请重新登录!') {
                   that.$message(res.data.msg);
@@ -823,8 +892,8 @@
         }
       },
       doExport() {
-        window.location.href = this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/exportDto?recruitId=' + this.recTeacher.recruitId + '&unitId='+this.recTeacher.unitId+'&postId='+this.recTeacher.postId+'&name='+this.recTeacher.name+'&idNumber='+this.recTeacher.idNumber+'&isverify='+this.recTeacher.isverify;
-        // const that = this;
+        window.open(this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/exportDto?recruitId=' + this.recTeacher.recruitId + '&unitId='+this.recTeacher.unitId+'&postId='+this.recTeacher.postId+'&name='+this.recTeacher.name+'&idNumber='+this.recTeacher.idNumber+'&isverify='+this.recTeacher.isverify, '_blank');
+         // const that = this;
         // axios({
         //     method: 'post',
         //     url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/export',

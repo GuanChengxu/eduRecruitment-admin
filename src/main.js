@@ -49,8 +49,7 @@ Object.keys(filters).forEach(key => {
 
 Vue.config.productionTip = false
 // Vue.prototype.commenUrl = 'https://ystwx.yantai.gov.cn/jneduapi2'
-Vue.prototype.commenUrl = 'http://192.168.31.68:8081'
-// Vue.prototype.commenUrl = 'http://154.8.201.198:8081'
+Vue.prototype.commenUrl = 'http://154.8.201.198:8081'
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
