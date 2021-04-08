@@ -27,7 +27,7 @@
           <span>职位筛选</span>
         </div>
         <el-dropdown v-if="grade != 2 && grade != 3 && grade != '2' && grade != '3'" class="pm-search-school pulldown"
-          style="cursor: pointer;" trigger="click" @command="sdHandleCommand">
+                     style="cursor: pointer;" trigger="click" @command="sdHandleCommand">
           <div class="pulldown-div pd-school">
             {{schoolName}}<img class="pulldown-img" src="../assets/down.png" />
           </div>
@@ -305,6 +305,7 @@
           <div class="mspd-buttonbox" v-else-if="popupData.isverify == '2'">
             <button class="mspd-buttonstyle mspd-reject tgorjj" style="cursor: pointer;" @click="showReject()">拒绝</button>
             <button class="mspd-buttonstyle mspd-export tgorjj" style="cursor: pointer;" @click="exportPDF(popupData.teacherId)">导出</button>
+            <button class="mspd-buttonstyle mspd-export tgorjj" style="cursor: pointer;" @click="sendEmail(popupData.teacherId)">发送邮件</button>
           </div>
           <!-- 拒绝 -->
           <div class="mspd-buttonbox" v-else-if="popupData.isverify == '3'">
@@ -327,21 +328,21 @@
         :visible.sync="exportVisible"
         class="ts2"
         width="30%">
-          <div class="close clearfix">
-            <p class="fl">请选择导出统计的结束时间</p>
-            <img @click="exportVisible = false" src="../assets/close.png" alt="">
-          </div>
-          <div class="time clearfix">
-            <div class="label fl">结束时间:</div>
-            <el-date-picker
-              class="fl"
-              v-model="peoTime"
-              type="datetime"
-              format="yyyy-MM-dd HH:mm:ss"
-              placeholder="选择日期时间">
-            </el-date-picker>
-          </div>
-          <span slot="footer" class="dialog-footer">
+        <div class="close clearfix">
+          <p class="fl">请选择导出统计的结束时间</p>
+          <img @click="exportVisible = false" src="../assets/close.png" alt="">
+        </div>
+        <div class="time clearfix">
+          <div class="label fl">结束时间:</div>
+          <el-date-picker
+            class="fl"
+            v-model="peoTime"
+            type="datetime"
+            format="yyyy-MM-dd HH:mm:ss"
+            placeholder="选择日期时间">
+          </el-date-picker>
+        </div>
+        <span slot="footer" class="dialog-footer">
             <el-button @click="exportVisible = false">取 消</el-button>
             <el-button type="primary" @click="peoExport()">导 出</el-button>
           </span>
@@ -364,9 +365,9 @@
         pms_subject: '语文老师',
         currentTab: 0,
         scrollList: [{
-            name: '待审核',
-            number: 0
-          },
+          name: '待审核',
+          number: 0
+        },
           {
             name: '已通过',
             number: 0
@@ -411,7 +412,8 @@
         reject_popup: 0,
         grade: '0',
         sortNum: 0,
-        sortName:'',
+        sortName:'applyTime',
+        sortOrder:'asc',
         picVisible:false,
         swiperOption:{},
         total:0,
@@ -446,138 +448,17 @@
     },
     methods: {
       paixu(val) {
-        if (this.sortNum == 0 || this.sortName != val) {
-          this.sortNum = 1;
-          if (val == 'name' || val == 'unit' || val == 'subject' || val == 'highEducation' || val == 'doctorAcademy' || val == 'doctorSpecialty') {
-            this.zhongwenpaixu(this.peopleData, val);
-          } else {
-            this.shuzipaixu(this.peopleData, val);
-          }
-        } else if (this.sortNum == 1) {
-          this.sortNum = 0;
-          // this.reverse();
-          if (val == 'name' || val == 'unit' || val == 'subject' || val == 'highEducation' || val == 'doctorAcademy' || val == 'doctorSpecialty') {
-            this.zhongwenpaixu1(this.peopleData, val);
-          } else {
-            this.shuzipaixu1(this.peopleData, val);
+        if(this.sortName != val){
+          this.sortOrder = 'asc'
+        }else{
+          if(this.sortOrder == 'asc'){
+            this.sortOrder = 'desc'
+          }else if(this.sortOrder == 'desc'){
+            this.sortOrder = 'asc'
           }
         }
         this.sortName = val;
-      },
-      shuzipaixu(array, key) {
-        return array.sort(function(a, b) {
-          var x = a[key];
-          var y = b[key];
-          return ((x < y) ? -1 : (x > y) ? 1 : 0)
-        })
-      },
-      shuzipaixu1(array, key) {
-        return array.sort(function(a, b) {
-          var x = a[key];
-          var y = b[key];
-          return ((x > y) ? -1 : (x < y) ? 1 : 0)
-        })
-      },
-      zhongwenpaixu(array, key) {
-        return array.sort(function(a, b) {
-          var x = a[key];
-          var y = b[key];
-          if(key == 'highEducation'){
-            x = a['certificationInfo']['highestEducation']
-            y = b['certificationInfo']['highestEducation']
-          }else if(key == 'doctorAcademy'){
-            if(a.certificationInfo.doctorAcademy != null){
-              x = a['certificationInfo']['doctorAcademy']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy != null){
-              x = a['certificationInfo']['masterAcademy']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy != null){
-              x = a['certificationInfo']['bachelorAcademy']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy == null && a.certificationInfo.specialtiesAcademy != null){
-              x = a['certificationInfo']['specialtiesAcademy']
-            }
-            if(b.certificationInfo.doctorAcademy != null){
-              y = b['certificationInfo']['doctorAcademy']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy != null){
-              y = b['certificationInfo']['masterAcademy']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy != null){
-              y = b['certificationInfo']['bachelorAcademy']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy == null && b.certificationInfo.specialtiesAcademy != null){
-              y = b['certificationInfo']['specialtiesAcademy']
-            }
-          }else if(key == 'doctorSpecialty'){
-            if(a.certificationInfo.doctorAcademy != null){
-              x = a['certificationInfo']['doctorSpecialty']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy != null){
-              x = a['certificationInfo']['masterSpecialty']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy != null){
-              x = a['certificationInfo']['bachelorSpecialty']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy == null && a.certificationInfo.specialtiesAcademy != null){
-              x = a['certificationInfo']['specialtiesSpecialty']
-            }
-            if(b.certificationInfo.doctorAcademy != null){
-              y = b['certificationInfo']['doctorSpecialty']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy != null){
-              y = b['certificationInfo']['masterSpecialty']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy != null){
-              y = b['certificationInfo']['bachelorSpecialty']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy == null && b.certificationInfo.specialtiesAcademy != null){
-              y = b['certificationInfo']['specialtiesSpecialty']
-            }
-          }
-          return x.localeCompare(y)
-        })
-      },
-      zhongwenpaixu1(array, key) {
-        return array.sort(function(a, b) {
-          var x = a[key];
-          var y = b[key];
-          if(key == 'highEducation'){
-            x = a['certificationInfo']['highestEducation']
-            y = b['certificationInfo']['highestEducation']
-          }else if(key == 'doctorAcademy'){
-            if(a.certificationInfo.doctorAcademy != null){
-              x = a['certificationInfo']['doctorAcademy']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy != null){
-              x = a['certificationInfo']['masterAcademy']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy != null){
-              x = a['certificationInfo']['bachelorAcademy']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy == null && a.certificationInfo.specialtiesAcademy != null){
-              x = a['certificationInfo']['specialtiesAcademy']
-            }
-            if(b.certificationInfo.doctorAcademy != null){
-              y = b['certificationInfo']['doctorAcademy']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy != null){
-              y = b['certificationInfo']['masterAcademy']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy != null){
-              y = b['certificationInfo']['bachelorAcademy']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy == null && b.certificationInfo.specialtiesAcademy != null){
-              y = b['certificationInfo']['specialtiesAcademy']
-            }
-          }else if(key == 'doctorSpecialty'){
-            if(a.certificationInfo.doctorAcademy != null){
-              x = a['certificationInfo']['doctorSpecialty']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy != null){
-              x = a['certificationInfo']['masterSpecialty']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy != null){
-              x = a['certificationInfo']['bachelorSpecialty']
-            }else if(a.certificationInfo.doctorAcademy == null && a.certificationInfo.masterAcademy == null && a.certificationInfo.bachelorAcademy == null && a.certificationInfo.specialtiesAcademy != null){
-              x = a['certificationInfo']['specialtiesSpecialty']
-            }
-            if(b.certificationInfo.doctorAcademy != null){
-              y = b['certificationInfo']['doctorSpecialty']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy != null){
-              y = b['certificationInfo']['masterSpecialty']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy != null){
-              y = b['certificationInfo']['bachelorSpecialty']
-            }else if(b.certificationInfo.doctorAcademy == null && b.certificationInfo.masterAcademy == null && b.certificationInfo.bachelorAcademy == null && b.certificationInfo.specialtiesAcademy != null){
-              y = b['certificationInfo']['specialtiesSpecialty']
-            }
-          }
-          return y.localeCompare(x)
-        })
-      },
-      reverse() {
-        this.peopleData.reverse();
+        this.getPeopleList(2);
       },
       popupTop() {
         var h1 = window.innerHeight;
@@ -666,6 +547,8 @@
         } else if (current == 3) {
           this.recTeacher.isverify = '0';
         }
+        this.sortName = 'applyTime';
+        this.sortOrder = 'asc';
         this.getPeopleList(1);
       },
       getPeopleList(val) {
@@ -678,14 +561,36 @@
           data.pageNum = this.pageNum;
         }
         data.pageSize = 15;
+        if(this.sortName == 'name'){
+          data.sortField = 't.name'
+        }else if(this.sortName == 'sex'){
+          data.sortField = 't.sex'
+        }else if(this.sortName == 'idNumber'){
+          data.sortField = 't.id_number'
+        }else if(this.sortName == 'mobile'){
+          data.sortField = 't.mobile'
+        }else if(this.sortName == 'unit'){
+          data.sortField = 'u.name'
+        }else if(this.sortName == 'subject'){
+          data.sortField = 'j.subject_name'
+        }else if(this.sortName == 'highEducation'){
+          data.sortField = 'i.highest_education'
+        }else if(this.sortName == 'applyTime'){
+          data.sortField = 't.apply_time'
+        }else if(this.sortName == 'doctorAcademy'){
+          data.sortField = 'academy'
+        }else if(this.sortName == 'doctorSpecialty'){
+          data.sortField = 'specialty'
+        }
+        data.collation = this.sortOrder;
         axios({
-            method: 'post',
-            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/list',
-            data: qs.stringify(data),
-            headers: {
-              token: localStorage.getItem('token')
-            }
-          })
+          method: 'post',
+          url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/list',
+          data: qs.stringify(data),
+          headers: {
+            token: localStorage.getItem('token')
+          }
+        })
           .then(function(res) {
             if (res.status == 200) {
               if (res.data.list.code == 200) {
@@ -702,14 +607,6 @@
                     val.applyTime = that.format(val.applyTime, 'yyyy-MM-dd HH:mm:ss');
                   }
                 })
-                if(val && val == 2){
-                  if(that.sortNum == 0){
-                    that.sortNum = 1;
-                  }else if(that.sortNum == 1){
-                    that.sortNum = 0;
-                  }
-                  that.paixu(that.sortName)
-                }
               } else if (res.data.code == 500) {
                 if (res.data.msg == '您的Session时效性已过，请重新登录!') {
                   that.$message(res.data.msg);
@@ -728,13 +625,13 @@
       async getSchoolList() {
         var that = this;
         await axios({
-            method: 'post',
-            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/unitList',
-            data: qs.stringify(this.downListDto),
-            headers: {
-              token: localStorage.getItem('token')
-            }
-          })
+          method: 'post',
+          url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/unitList',
+          data: qs.stringify(this.downListDto),
+          headers: {
+            token: localStorage.getItem('token')
+          }
+        })
           .then(function(res) {
             if (res.status == 200) {
               if (res.data.code == 200) {
@@ -764,13 +661,13 @@
       getPostList(val) {
         var that = this;
         axios({
-            method: 'post',
-            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/subject',
-            data:qs.stringify({applyId:this.downListDto.applyId, unitId:this.recTeacher.unitId}),
-            headers: {
-              token: localStorage.getItem('token')
-            }
-          })
+          method: 'post',
+          url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/subject',
+          data:qs.stringify({applyId:this.downListDto.applyId, unitId:this.recTeacher.unitId}),
+          headers: {
+            token: localStorage.getItem('token')
+          }
+        })
           .then(function(res) {
             if (res.status == 200) {
               if (res.data.code == 200) {
@@ -811,13 +708,13 @@
         // that.postName = '全部';
         // that.currentTab = 0;
         axios({
-            method: 'post',
-            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/list',
-            data: qs.stringify(this.recTeacher),
-            headers: {
-              token: localStorage.getItem('token')
-            }
-          })
+          method: 'post',
+          url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/list',
+          data: qs.stringify(this.recTeacher),
+          headers: {
+            token: localStorage.getItem('token')
+          }
+        })
           .then(function(res) {
             if (res.status == 200) {
               if (res.data.list.code == 200) {
@@ -893,7 +790,7 @@
       },
       doExport() {
         window.open(this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/exportDto?recruitId=' + this.recTeacher.recruitId + '&unitId='+this.recTeacher.unitId+'&postId='+this.recTeacher.postId+'&name='+this.recTeacher.name+'&idNumber='+this.recTeacher.idNumber+'&isverify='+this.recTeacher.isverify, '_blank');
-         // const that = this;
+        // const that = this;
         // axios({
         //     method: 'post',
         //     url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/export',
@@ -928,13 +825,13 @@
         that.auditDto.teacherId = id;
         that.auditDto.isverify = '2';
         axios({
-            method: 'post',
-            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/audit',
-            data: qs.stringify(this.auditDto),
-            headers: {
-              token: localStorage.getItem('token')
-            },
-          })
+          method: 'post',
+          url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/audit',
+          data: qs.stringify(this.auditDto),
+          headers: {
+            token: localStorage.getItem('token')
+          },
+        })
           .then(function(res) {
             if (res.status == 200) {
               if (res.data.code == 200) {
@@ -961,19 +858,19 @@
         that.auditDto.teacherId = id;
         that.auditDto.isverify = '3';
         if (that.auditDto.isverifyRemark == '' || that.auditDto.isverifyRemark == null || keyVal.isverifyRemark.replace(
-            /\s*/g, "") == "") {
+          /\s*/g, "") == "") {
           that.$message('请输入拒绝原因');
         } else if (that.auditDto.isverifyRemark.length > 40) {
           that.$message('拒绝原因不能超过40个字');
         } else {
           axios({
-              method: 'post',
-              url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/audit',
-              data: qs.stringify(this.auditDto),
-              headers: {
-                token: localStorage.getItem('token')
-              },
-            })
+            method: 'post',
+            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/audit',
+            data: qs.stringify(this.auditDto),
+            headers: {
+              token: localStorage.getItem('token')
+            },
+          })
             .then(function(res) {
               if (res.status == 200) {
                 if (res.data.code == 200) {
@@ -1000,6 +897,51 @@
       },
       exportPDF(id) {
         window.location.href = this.commenUrl+'/edu/recruitment/exportPDF?teacherId=' + id + '&tableInfo=all';
+      },
+      //发送邮件
+      sendEmail(id){
+        const that = this;
+        if(id){jn
+          const loading = this.$loading({
+            lock: true,
+            text: '发送中...',
+            spinner: '',
+            background: 'rgba(0, 0, 0, 0.7)'
+          })
+          axios({
+            method:'post',
+            url: this.commenUrl+'/edu/eduRear/eduPersonnelAllocation/sendMail',
+            headers: {
+              token: localStorage.getItem('token')
+            },
+            data:qs.stringify({
+              teacherId:id
+            }),
+            responseType:'text'
+          })
+            .then(function(res) {
+              loading.close();
+              if (res.status == 200) {
+                if (res.data.code == 200) {
+                  that.$message('发送成功');
+                } else if (res.data.code == 500) {
+                  if (res.data.msg == '您的Session时效性已过，请重新登录!') {
+                    that.$message(res.data.msg);
+                    localStorage.removeItem('token');
+                    that.$router.replace('/');
+                  } else {
+                    that.$message(res.data.msg);
+                  }
+                }
+              }
+            })
+            .catch(function() {
+              loading.close();
+              that.$message('失败');
+            });
+        }else{
+          that.$message('发送失败，未找到该报名信息');
+        }
       },
       format(time, format) {
         var reg = new RegExp('T', 'g');
